@@ -27,15 +27,20 @@ body {
   color: var(--text);
   font-family: 'DM Sans', sans-serif;
   min-height: 100dvh;
-  overflow: hidden;
+  overflow-x: hidden; /* Prevent horizontal scroll */
 }
 .app { max-width: 430px; margin: 0 auto; min-height: 100dvh; display: flex; flex-direction: column; }
 
+/* FIX: Ensure onboarding is truly removed when hidden */
 .onboarding {
   position: fixed; inset: 0; background: var(--bg); z-index: 1000;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   padding: 40px 24px; text-align: center;
 }
+.onboarding.hidden {
+  display: none !important;
+}
+
 .onboarding h1 {
   font-family: 'DM Serif Display', serif; font-size: 32px; margin-bottom: 12px;
 }
@@ -44,6 +49,7 @@ body {
   display: inline-block; padding: 10px 18px; margin: 6px;
   background: var(--card); border: 1px solid var(--border);
   border-radius: 9999px; font-size: 14px; cursor: pointer;
+  transition: all 0.2s ease;
 }
 .trigger-chip.active {
   background: var(--safe-bg); border-color: var(--safe); color: var(--safe);
@@ -53,7 +59,7 @@ body {
   background: var(--safe); color: white; border: none; border-radius: 16px;
   font-size: 16px; font-weight: 600; cursor: pointer;
 }
-.onboarding-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.onboarding-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
 .top-bar {
   padding: 16px; display: flex; justify-content: space-between; align-items: center;
@@ -87,6 +93,7 @@ body {
 
 .detail-grid {
   display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 16px;
+  margin-bottom: 80px; /* Room for nav */
 }
 .detail-card {
   background: var(--card); border: 1px solid var(--border);
@@ -98,7 +105,7 @@ body {
 .bottom-nav {
   position: fixed; bottom: 0; left: 0; right: 0; max-width: 430px; margin: 0 auto;
   background: var(--bg); border-top: 1px solid var(--border);
-  display: flex; padding: 8px 0;
+  display: flex; padding: 8px 0; z-index: 100;
 }
 .nav-item {
   flex: 1; text-align: center; padding: 8px 4px; font-size: 11px; cursor: pointer;
@@ -106,7 +113,7 @@ body {
 .nav-item.active { color: var(--safe); }
 
 .sub-screen {
-  position: fixed; inset: 0; background: var(--bg); z-index: 200;
+  position: fixed; inset: 0; background: var(--bg); z-index: 2000;
   display: none; flex-direction: column;
 }
 .sub-screen.visible { display: flex; }
@@ -115,47 +122,36 @@ body {
   display: flex; align-items: center; gap: 12px;
 }
 .back { font-size: 28px; cursor: pointer; color: var(--text3); }
-
-.breath-circle {
-  width: 180px; height: 180px; border: 4px solid #4a90c8;
-  border-radius: 50%; margin: 40px auto; display: flex;
-  align-items: center; justify-content: center; font-size: 18px;
-  transition: all 4s ease;
-}
 </style>
 </head>
 <body>
 <div class="app">
 
-  <!-- ONBOARDING -->
   <div class="onboarding" id="onboarding">
-    <h1>Welcome to Skye</h1>
-    <p>Before we start, tell Skye what scares you most during storms.<br>This helps us speak your language.</p>
+    [span_0](start_span)<h1>Welcome to Skye</h1>[span_0](end_span)
+    [span_1](start_span)<p>Before we start, tell Skye what scares you most during storms.<br>This helps us speak your language.</p>[span_1](end_span)
     
     <div id="trigger-chips" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:340px">
-      <div class="trigger-chip" data-trigger="tornadoes">Tornadoes</div>
-      <div class="trigger-chip" data-trigger="lightning">Lightning</div>
-      <div class="trigger-chip" data-trigger="thunder">Loud thunder</div>
-      <div class="trigger-chip" data-trigger="wind">Strong wind</div>
-      <div class="trigger-chip" data-trigger="power">Power outages</div>
-      <div class="trigger-chip" data-trigger="flooding">Flooding</div>
-      <div class="trigger-chip" data-trigger="hail">Hail</div>
-      <div class="trigger-chip" data-trigger="alone">Being alone</div>
+      [span_2](start_span)<div class="trigger-chip" data-trigger="tornadoes">Tornadoes</div>[span_2](end_span)
+      [span_3](start_span)<div class="trigger-chip" data-trigger="lightning">Lightning</div>[span_3](end_span)
+      [span_4](start_span)<div class="trigger-chip" data-trigger="thunder">Loud thunder</div>[span_4](end_span)
+      [span_5](start_span)<div class="trigger-chip" data-trigger="wind">Strong wind</div>[span_5](end_span)
+      [span_6](start_span)<div class="trigger-chip" data-trigger="power">Power outages</div>[span_6](end_span)
+      [span_7](start_span)<div class="trigger-chip" data-trigger="flooding">Flooding</div>[span_7](end_span)
+      [span_8](start_span)<div class="trigger-chip" data-trigger="hail">Hail</div>[span_8](end_span)
+      [span_9](start_span)<div class="trigger-chip" data-trigger="alone">Being alone</div>[span_9](end_span)
     </div>
     
-    <button class="onboarding-btn" id="onboarding-done" disabled>Continue</button>
+    [span_10](start_span)<button class="onboarding-btn" id="onboarding-done" disabled>Continue</button>[span_10](end_span)
   </div>
 
-  <!-- MAIN APP -->
-  <div id="main-app" style="display:none; flex:1; display:flex; flex-direction:column;">
+  <div id="main-app" style="display:none; flex:1; flex-direction:column;">
 
-    <!-- Top Bar -->
     <div class="top-bar">
       <div id="location-text">Birmingham, AL</div>
       <div id="time-display"></div>
     </div>
 
-    <!-- Hero -->
     <div class="hero">
       <div class="hero-icon" id="hero-icon">⛈</div>
       <div class="hero-temp" id="hero-temp">82°</div>
@@ -173,7 +169,6 @@ body {
       <div id="briefing-text">No active warnings right now. Skye is monitoring the weather so you don't have to. You're not alone.</div>
     </div>
 
-    <!-- Detail Grid -->
     <div class="detail-grid">
       <div class="detail-card">
         <div class="detail-label">CONDITIONS</div>
@@ -193,7 +188,6 @@ body {
       </div>
     </div>
 
-    <!-- Bottom Navigation -->
     <div class="bottom-nav">
       <div class="nav-item active" onclick="switchTab(0)">🌦<br>Now</div>
       <div class="nav-item" onclick="switchTab(1)">🧘<br>Toolkit</div>
@@ -202,7 +196,6 @@ body {
     </div>
   </div>
 
-  <!-- TOOLKIT SUB SCREEN -->
   <div class="sub-screen" id="toolkit-screen">
     <div class="sub-header">
       <span class="back" onclick="closeToolkit()">←</span>
@@ -213,15 +206,15 @@ body {
       <div onclick="startGrounding()" style="background:var(--card);padding:16px;border-radius:16px;margin-bottom:12px;cursor:pointer">🌿 5-4-3-2-1 Grounding</div>
       <div onclick="alert('Preparedness Checklist: NOAA Weather Radio, flashlight, water, safe room location, phone charger, important documents.')" style="background:var(--card);padding:16px;border-radius:16px;margin-bottom:12px;cursor:pointer">📋 Preparedness Checklist</div>
       <div onclick="showFacts()" style="background:var(--card);padding:16px;border-radius:16px;margin-bottom:12px;cursor:pointer">⚡ Storm Facts</div>
-      <div onclick="alert('Post-Storm Journal opened. Write how you felt and what helped you stay calm.')" style="background:var(--card);padding:16px;border-radius:16px;cursor:pointer">📝 Post-Storm Journal</div>
     </div>
   </div>
+</div>
 
 <script>
 // State
 let triggers = [];
 
-// Onboarding
+// Onboarding logic with Fix for UI overlap
 document.querySelectorAll('.trigger-chip').forEach(chip => {
   chip.addEventListener('click', () => {
     chip.classList.toggle('active');
@@ -234,11 +227,12 @@ document.getElementById('onboarding-done').addEventListener('click', () => {
   triggers = Array.from(document.querySelectorAll('.trigger-chip.active')).map(c => c.dataset.trigger);
   localStorage.setItem('skye_triggers', JSON.stringify(triggers));
   
-  document.getElementById('onboarding').style.display = 'none';
+  // FIX: Properly hide onboarding and show app
+  document.getElementById('onboarding').classList.add('hidden');
   document.getElementById('main-app').style.display = 'flex';
 });
 
-// Time
+// Time display
 function updateTime() {
   const now = new Date();
   document.getElementById('time-display').textContent = now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
@@ -252,7 +246,7 @@ function switchTab(tab) {
     document.getElementById('toolkit-screen').classList.add('visible');
   } else {
     const tabNames = ["Now", "Toolkit", "Profile", "History"];
-    alert(`You are now in the ${tabNames[tab]} tab.\n\nAll core features are working.`);
+    console.log(`Switched to ${tabNames[tab]}`);
   }
 }
 
@@ -260,30 +254,23 @@ function closeToolkit() {
   document.getElementById('toolkit-screen').classList.remove('visible');
 }
 
-// Breathing Timer
-function startBreathing() {
-  const msg = "Box breathing started.\n\nInhale 4 seconds → Hold 4 → Exhale 4 → Hold 4.\nRepeat for 2 minutes.";
-  alert(msg);
-}
+// Toolkit Features
+function startBreathing() { alert("Box breathing started.\n\nInhale 4s → Hold 4s → Exhale 4s → Hold 4s."); }
+function startGrounding() { alert("5-4-3-2-1 Grounding:\nLook for 5 things you can see, 4 you can touch, 3 you can hear, 2 you can smell, 1 you can taste."); }
+function showFacts() { alert("Storm Facts:\n• Thunder cannot hurt you.\n• Your home is built to stay safe."); }
+function checkSafety() { alert("✅ You appear safe right now.\nNo active severe weather warnings in your area."); }
 
-// Grounding
-function startGrounding() {
-  alert("5-4-3-2-1 Grounding:\n\n5 things you can see\n4 things you can touch\n3 things you can hear\n2 things you can smell\n1 thing you can taste\n\nTake your time.");
-}
-
-// Storm Facts
-function showFacts() {
-  alert("Storm Facts:\n\n• Thunder is just air expanding from lightning heat — it can't hurt you.\n• Most thunderstorms last 30-60 minutes.\n• Your home is built to handle this.\n• Sirens are for people outside, not inside.");
-}
-
-// Safety
-function checkSafety() {
-  alert("✅ You appear safe right now in Birmingham.\n\nNo active severe weather warnings.\nThunderstorms possible this evening.\n\nSkye is monitoring the weather. You're not alone.");
-}
-
-// Service Worker (safe for GitHub Pages)
+// FIX: Improved Service Worker Registration for GitHub Pages
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js').catch(() => {});
+  window.addEventListener('load', () => {
+    // This dynamically handles the /skye-app/ subdirectory on GitHub
+    const repoPath = window.location.pathname.split('/')[1];
+    const swPath = window.location.pathname.includes('.github.io') ? `/${repoPath}/sw.js` : '/sw.js';
+    
+    navigator.serviceWorker.register('sw.js')
+      .then(reg => console.log('Service Worker Registered'))
+      .catch(err => console.warn('Service Worker registration failed. This is common during local development or non-https environments.'));
+  });
 }
 </script>
 </body>
