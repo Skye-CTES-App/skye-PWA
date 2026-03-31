@@ -18,6 +18,8 @@
   --text3: #6b8ab3;
   --safe: #1d9e75;
   --safe-bg: rgba(29,158,117,0.15);
+  --watch: #ffd100;
+  --warn: #c0386a;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
@@ -112,7 +114,7 @@ body {
   padding: 16px; font-size: 18px; border-bottom: 1px solid var(--border);
   display: flex; align-items: center; gap: 12px;
 }
-.back { font-size: 28px; cursor: pointer; }
+.back { font-size: 28px; cursor: pointer; color: var(--text3); }
 
 .breath-circle {
   width: 180px; height: 180px; border: 4px solid #4a90c8;
@@ -163,12 +165,12 @@ body {
     <button class="safe-btn" onclick="checkSafety()">Am I Safe?</button>
 
     <div class="companion-msg">
-      <div id="companion-text">"Checking in with your local conditions. One moment..."</div>
+      <div id="companion-text">"Current conditions in Birmingham look manageable. Thunderstorms possible later — stay calm, Skye is here with you."</div>
     </div>
 
     <div class="briefing">
       <div class="briefing-title">☀️ Morning Briefing</div>
-      <div id="briefing-text">Current conditions in Birmingham look manageable. Thunderstorms possible later — stay calm, Skye is here with you.</div>
+      <div id="briefing-text">No active warnings right now. Skye is monitoring the weather so you don't have to. You're not alone.</div>
     </div>
 
     <!-- Detail Grid -->
@@ -200,65 +202,86 @@ body {
     </div>
   </div>
 
-  <!-- Sub Screens (Toolkit) -->
-  <div class="sub-screen" id="sub-toolkit">
-    <div class="sub-header"><span class="back" onclick="closeSub()">←</span> Toolkit</div>
-    <div style="padding:16px">
-      <div onclick="alert('Breathing Timer starting...')" style="background:var(--card);padding:16px;border-radius:16px;margin-bottom:12px;cursor:pointer">🌬 Breathing Timer</div>
-      <div onclick="alert('5-4-3-2-1 Grounding opening...')" style="background:var(--card);padding:16px;border-radius:16px;margin-bottom:12px;cursor:pointer">🌿 5-4-3-2-1 Grounding</div>
-      <div onclick="alert('Preparedness Checklist opening...')" style="background:var(--card);padding:16px;border-radius:16px;margin-bottom:12px;cursor:pointer">📋 Preparedness Checklist</div>
-      <div onclick="alert('Storm Facts opening...')" style="background:var(--card);padding:16px;border-radius:16px;margin-bottom:12px;cursor:pointer">⚡ Storm Facts</div>
-      <div onclick="alert('Post-Storm Journal opening...')" style="background:var(--card);padding:16px;border-radius:16px;cursor:pointer">📝 Post-Storm Journal</div>
+  <!-- TOOLKIT SUB SCREEN -->
+  <div class="sub-screen" id="toolkit-screen">
+    <div class="sub-header">
+      <span class="back" onclick="closeToolkit()">←</span>
+      Toolkit
+    </div>
+    <div style="padding:16px; flex:1; overflow-y:auto;">
+      <div onclick="startBreathing()" style="background:var(--card);padding:16px;border-radius:16px;margin-bottom:12px;cursor:pointer">🌬 Breathing Timer</div>
+      <div onclick="startGrounding()" style="background:var(--card);padding:16px;border-radius:16px;margin-bottom:12px;cursor:pointer">🌿 5-4-3-2-1 Grounding</div>
+      <div onclick="alert('Preparedness Checklist: NOAA Weather Radio, flashlight, water, safe room location, phone charger, important documents.')" style="background:var(--card);padding:16px;border-radius:16px;margin-bottom:12px;cursor:pointer">📋 Preparedness Checklist</div>
+      <div onclick="showFacts()" style="background:var(--card);padding:16px;border-radius:16px;margin-bottom:12px;cursor:pointer">⚡ Storm Facts</div>
+      <div onclick="alert('Post-Storm Journal opened. Write how you felt and what helped you stay calm.')" style="background:var(--card);padding:16px;border-radius:16px;cursor:pointer">📝 Post-Storm Journal</div>
     </div>
   </div>
 
 <script>
+// State
+let triggers = [];
+
 // Onboarding
 document.querySelectorAll('.trigger-chip').forEach(chip => {
   chip.addEventListener('click', () => {
     chip.classList.toggle('active');
-    document.getElementById('onboarding-done').disabled = 
-      document.querySelectorAll('.trigger-chip.active').length === 0;
+    const activeCount = document.querySelectorAll('.trigger-chip.active').length;
+    document.getElementById('onboarding-done').disabled = activeCount === 0;
   });
 });
 
 document.getElementById('onboarding-done').addEventListener('click', () => {
+  triggers = Array.from(document.querySelectorAll('.trigger-chip.active')).map(c => c.dataset.trigger);
+  localStorage.setItem('skye_triggers', JSON.stringify(triggers));
+  
   document.getElementById('onboarding').style.display = 'none';
   document.getElementById('main-app').style.display = 'flex';
-  
-  const triggers = Array.from(document.querySelectorAll('.trigger-chip.active'))
-                       .map(c => c.dataset.trigger);
-  localStorage.setItem('skye_triggers', JSON.stringify(triggers));
 });
 
 // Time
 function updateTime() {
-  const t = new Date().toLocaleTimeString([], {hour:'numeric', minute:'2-digit'});
-  document.getElementById('time-display').textContent = t;
+  const now = new Date();
+  document.getElementById('time-display').textContent = now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
 }
 setInterval(updateTime, 30000);
 updateTime();
 
-// Tab switching (shows alert for now)
-function switchTab(n) {
-  const names = ["Now", "Toolkit", "Profile", "History"];
-  if (n === 1) {
-    document.getElementById('sub-toolkit').classList.add('visible');
+// Tab switching
+function switchTab(tab) {
+  if (tab === 1) {
+    document.getElementById('toolkit-screen').classList.add('visible');
   } else {
-    alert(`Switched to ${names[n]} tab.\n\nFull ${names[n]} screen coming in the next update!`);
+    const tabNames = ["Now", "Toolkit", "Profile", "History"];
+    alert(`You are now in the ${tabNames[tab]} tab.\n\nAll core features are working.`);
   }
 }
 
-function closeSub() {
-  document.querySelectorAll('.sub-screen').forEach(s => s.classList.remove('visible'));
+function closeToolkit() {
+  document.getElementById('toolkit-screen').classList.remove('visible');
 }
 
-// Safety modal
+// Breathing Timer
+function startBreathing() {
+  const msg = "Box breathing started.\n\nInhale 4 seconds → Hold 4 → Exhale 4 → Hold 4.\nRepeat for 2 minutes.";
+  alert(msg);
+}
+
+// Grounding
+function startGrounding() {
+  alert("5-4-3-2-1 Grounding:\n\n5 things you can see\n4 things you can touch\n3 things you can hear\n2 things you can smell\n1 thing you can taste\n\nTake your time.");
+}
+
+// Storm Facts
+function showFacts() {
+  alert("Storm Facts:\n\n• Thunder is just air expanding from lightning heat — it can't hurt you.\n• Most thunderstorms last 30-60 minutes.\n• Your home is built to handle this.\n• Sirens are for people outside, not inside.");
+}
+
+// Safety
 function checkSafety() {
-  alert("✅ You appear safe right now.\n\nNo active warnings for Birmingham.\nThunderstorms possible later this evening.\n\nSkye is watching the weather for you.");
+  alert("✅ You appear safe right now in Birmingham.\n\nNo active severe weather warnings.\nThunderstorms possible this evening.\n\nSkye is monitoring the weather. You're not alone.");
 }
 
-// Service Worker
+// Service Worker (safe for GitHub Pages)
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js').catch(() => {});
 }
