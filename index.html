@@ -4,8 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
 <meta name="theme-color" content="#0d1117">
-<link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="icon-192.png">
 <title>Skye — Calm Through Every Storm</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
 <style>
@@ -14,12 +12,9 @@
   --card: rgba(255,255,255,0.06);
   --border: rgba(255,255,255,0.08);
   --text: #e8f0f8;
-  --text2: #a0b4cc;
   --text3: #6b8ab3;
   --safe: #1d9e75;
   --safe-bg: rgba(29,158,117,0.15);
-  --watch: #ffd100;
-  --warn: #c0386a;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
@@ -27,249 +22,109 @@ body {
   color: var(--text);
   font-family: 'DM Sans', sans-serif;
   min-height: 100dvh;
-  overflow-x: hidden; /* Prevent horizontal scroll */
+  overflow-x: hidden;
 }
 .app { max-width: 430px; margin: 0 auto; min-height: 100dvh; display: flex; flex-direction: column; }
 
-/* FIX: Ensure onboarding is truly removed when hidden */
+/* ONBOARDING OVERLAY FIX */
 .onboarding {
   position: fixed; inset: 0; background: var(--bg); z-index: 1000;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   padding: 40px 24px; text-align: center;
 }
-.onboarding.hidden {
-  display: none !important;
-}
+.onboarding.hidden { display: none !important; }
 
-.onboarding h1 {
-  font-family: 'DM Serif Display', serif; font-size: 32px; margin-bottom: 12px;
-}
+.onboarding h1 { font-family: 'DM Serif Display', serif; font-size: 32px; margin-bottom: 12px; }
 .onboarding p { color: var(--text3); line-height: 1.5; margin-bottom: 32px; }
+
+/* CHIP GRID FIX */
+.chip-container {
+  display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; max-width: 340px; margin-bottom: 30px;
+}
 .trigger-chip {
-  display: inline-block; padding: 10px 18px; margin: 6px;
-  background: var(--card); border: 1px solid var(--border);
-  border-radius: 9999px; font-size: 14px; cursor: pointer;
-  transition: all 0.2s ease;
+  padding: 12px 20px; background: var(--card); border: 1px solid var(--border);
+  border-radius: 99px; font-size: 14px; cursor: pointer; transition: 0.2s;
 }
-.trigger-chip.active {
-  background: var(--safe-bg); border-color: var(--safe); color: var(--safe);
-}
+.trigger-chip.active { background: var(--safe-bg); border-color: var(--safe); color: var(--safe); }
+
 .onboarding-btn {
-  margin-top: 20px; width: 100%; max-width: 320px; padding: 16px;
-  background: var(--safe); color: white; border: none; border-radius: 16px;
-  font-size: 16px; font-weight: 600; cursor: pointer;
+  width: 100%; max-width: 320px; padding: 16px; background: var(--safe);
+  color: white; border: none; border-radius: 16px; font-size: 16px; font-weight: 600;
 }
-.onboarding-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.onboarding-btn:disabled { opacity: 0.3; }
 
-.top-bar {
-  padding: 16px; display: flex; justify-content: space-between; align-items: center;
-  font-size: 13px; color: var(--text3);
-}
-.hero {
-  text-align: center; padding: 20px 16px;
-}
-.hero-icon { font-size: 64px; margin-bottom: 8px; }
-.hero-temp { font-family: 'DM Serif Display', serif; font-size: 68px; line-height: 1; }
-.hero-cond { font-size: 15px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; }
-
-.safe-btn {
-  margin: 0 16px 16px; padding: 16px; background: rgba(29,158,117,0.1);
-  border: 1px solid rgba(29,158,117,0.4); border-radius: 16px;
-  color: var(--safe); font-size: 16px; font-weight: 500; width: calc(100% - 32px);
-  cursor: pointer;
-}
-
-.companion-msg {
-  background: var(--card); border: 1px solid var(--border);
-  border-radius: 16px; padding: 18px; margin: 0 16px 16px;
-  font-style: italic; color: var(--text2); line-height: 1.6;
-}
-
-.briefing {
-  background: var(--card); border: 1px solid var(--border);
-  border-radius: 16px; padding: 18px; margin: 0 16px 16px;
-}
-.briefing-title { font-size: 15px; margin-bottom: 8px; color: #ffd700; }
-
-.detail-grid {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 16px;
-  margin-bottom: 80px; /* Room for nav */
-}
-.detail-card {
-  background: var(--card); border: 1px solid var(--border);
-  border-radius: 16px; padding: 16px;
-}
-.detail-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; }
-.detail-value { font-size: 17px; font-weight: 500; margin-top: 4px; }
-
-.bottom-nav {
-  position: fixed; bottom: 0; left: 0; right: 0; max-width: 430px; margin: 0 auto;
-  background: var(--bg); border-top: 1px solid var(--border);
-  display: flex; padding: 8px 0; z-index: 100;
-}
-.nav-item {
-  flex: 1; text-align: center; padding: 8px 4px; font-size: 11px; cursor: pointer;
-}
-.nav-item.active { color: var(--safe); }
-
-.sub-screen {
-  position: fixed; inset: 0; background: var(--bg); z-index: 2000;
-  display: none; flex-direction: column;
-}
-.sub-screen.visible { display: flex; }
-.sub-header {
-  padding: 16px; font-size: 18px; border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; gap: 12px;
-}
-.back { font-size: 28px; cursor: pointer; color: var(--text3); }
+/* MAIN APP STYLES */
+#main-app { flex: 1; flex-direction: column; padding-bottom: 80px; }
+.top-bar { padding: 16px; display: flex; justify-content: space-between; color: var(--text3); font-size: 13px; }
+.hero { text-align: center; padding: 40px 16px; }
+.hero-temp { font-family: 'DM Serif Display', serif; font-size: 68px; }
+.safe-btn { margin: 16px; padding: 16px; background: var(--safe-bg); border: 1px solid var(--safe); border-radius: 16px; color: var(--safe); width: calc(100% - 32px); }
 </style>
 </head>
 <body>
+
 <div class="app">
-
   <div class="onboarding" id="onboarding">
-    [span_0](start_span)<h1>Welcome to Skye</h1>[span_0](end_span)
-    [span_1](start_span)<p>Before we start, tell Skye what scares you most during storms.<br>This helps us speak your language.</p>[span_1](end_span)
+    <h1>Welcome to Skye</h1>
+    [span_4](start_span)[span_5](start_span)<p>Before we start, tell Skye what scares you most during storms.[span_4](end_span)[span_5](end_span)</p>
     
-    <div id="trigger-chips" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:340px">
-      [span_2](start_span)<div class="trigger-chip" data-trigger="tornadoes">Tornadoes</div>[span_2](end_span)
-      [span_3](start_span)<div class="trigger-chip" data-trigger="lightning">Lightning</div>[span_3](end_span)
-      [span_4](start_span)<div class="trigger-chip" data-trigger="thunder">Loud thunder</div>[span_4](end_span)
-      [span_5](start_span)<div class="trigger-chip" data-trigger="wind">Strong wind</div>[span_5](end_span)
-      [span_6](start_span)<div class="trigger-chip" data-trigger="power">Power outages</div>[span_6](end_span)
-      [span_7](start_span)<div class="trigger-chip" data-trigger="flooding">Flooding</div>[span_7](end_span)
-      [span_8](start_span)<div class="trigger-chip" data-trigger="hail">Hail</div>[span_8](end_span)
-      [span_9](start_span)<div class="trigger-chip" data-trigger="alone">Being alone</div>[span_9](end_span)
+    <div class="chip-container">
+      <div class="trigger-chip" data-trigger="tornadoes">Tornadoes</div>
+      <div class="trigger-chip" data-trigger="lightning">Lightning</div>
+      <div class="trigger-chip" data-trigger="thunder">Loud thunder</div>
+      <div class="trigger-chip" data-trigger="wind">Strong wind</div>
+      <div class="trigger-chip" data-trigger="power">Power outages</div>
+      <div class="trigger-chip" data-trigger="flooding">Flooding</div>
+      <div class="trigger-chip" data-trigger="hail">Hail</div>
+      <div class="trigger-chip" data-trigger="alone">Being alone</div>
     </div>
     
-    [span_10](start_span)<button class="onboarding-btn" id="onboarding-done" disabled>Continue</button>[span_10](end_span)
+    [span_6](start_span)<button class="onboarding-btn" id="onboarding-done" disabled>Continue[span_6](end_span)</button>
   </div>
 
-  <div id="main-app" style="display:none; flex:1; flex-direction:column;">
-
+  <div id="main-app" style="display:none;">
     <div class="top-bar">
-      <div id="location-text">Birmingham, AL</div>
-      <div id="time-display"></div>
+      <div>Columbia, AL</div> <div id="time-display"></div>
     </div>
-
     <div class="hero">
-      <div class="hero-icon" id="hero-icon">⛈</div>
-      <div class="hero-temp" id="hero-temp">82°</div>
-      <div class="hero-cond" id="hero-cond">Chance Showers And Thunderstorms</div>
+      <div style="font-size: 64px;">☀️</div>
+      <div class="hero-temp">--°</div>
+      <div style="color: var(--text3)">Waiting for data...</div>
     </div>
-
-    <button class="safe-btn" onclick="checkSafety()">Am I Safe?</button>
-
-    <div class="companion-msg">
-      <div id="companion-text">"Current conditions in Birmingham look manageable. Thunderstorms possible later — stay calm, Skye is here with you."</div>
-    </div>
-
-    <div class="briefing">
-      <div class="briefing-title">☀️ Morning Briefing</div>
-      <div id="briefing-text">No active warnings right now. Skye is monitoring the weather so you don't have to. You're not alone.</div>
-    </div>
-
-    <div class="detail-grid">
-      <div class="detail-card">
-        <div class="detail-label">CONDITIONS</div>
-        <div class="detail-value" id="cond-val">Chance Showers And Thunderstorms</div>
-      </div>
-      <div class="detail-card">
-        <div class="detail-label">WIND</div>
-        <div class="detail-value" id="wind-val">5 mph</div>
-      </div>
-      <div class="detail-card">
-        <div class="detail-label">HUMIDITY</div>
-        <div class="detail-value" id="hum-val">78 %</div>
-      </div>
-      <div class="detail-card">
-        <div class="detail-label">ACTIVE ALERTS</div>
-        <div class="detail-value" id="alert-val">0</div>
-      </div>
-    </div>
-
-    <div class="bottom-nav">
-      <div class="nav-item active" onclick="switchTab(0)">🌦<br>Now</div>
-      <div class="nav-item" onclick="switchTab(1)">🧘<br>Toolkit</div>
-      <div class="nav-item" onclick="switchTab(2)">⚙️<br>Profile</div>
-      <div class="nav-item" onclick="switchTab(3)">📊<br>History</div>
-    </div>
-  </div>
-
-  <div class="sub-screen" id="toolkit-screen">
-    <div class="sub-header">
-      <span class="back" onclick="closeToolkit()">←</span>
-      Toolkit
-    </div>
-    <div style="padding:16px; flex:1; overflow-y:auto;">
-      <div onclick="startBreathing()" style="background:var(--card);padding:16px;border-radius:16px;margin-bottom:12px;cursor:pointer">🌬 Breathing Timer</div>
-      <div onclick="startGrounding()" style="background:var(--card);padding:16px;border-radius:16px;margin-bottom:12px;cursor:pointer">🌿 5-4-3-2-1 Grounding</div>
-      <div onclick="alert('Preparedness Checklist: NOAA Weather Radio, flashlight, water, safe room location, phone charger, important documents.')" style="background:var(--card);padding:16px;border-radius:16px;margin-bottom:12px;cursor:pointer">📋 Preparedness Checklist</div>
-      <div onclick="showFacts()" style="background:var(--card);padding:16px;border-radius:16px;margin-bottom:12px;cursor:pointer">⚡ Storm Facts</div>
-    </div>
+    [span_7](start_span)<button class="safe-btn">Am I Safe?[span_7](end_span)</button>
   </div>
 </div>
 
 <script>
-// State
-let triggers = [];
-
-// Onboarding logic with Fix for UI overlap
+// Toggle Chips
 document.querySelectorAll('.trigger-chip').forEach(chip => {
   chip.addEventListener('click', () => {
     chip.classList.toggle('active');
-    const activeCount = document.querySelectorAll('.trigger-chip.active').length;
-    document.getElementById('onboarding-done').disabled = activeCount === 0;
+    const hasActive = document.querySelectorAll('.trigger-chip.active').length > 0;
+    document.getElementById('onboarding-done').disabled = !hasActive;
   });
 });
 
+// Switch to App
 document.getElementById('onboarding-done').addEventListener('click', () => {
-  triggers = Array.from(document.querySelectorAll('.trigger-chip.active')).map(c => c.dataset.trigger);
-  localStorage.setItem('skye_triggers', JSON.stringify(triggers));
-  
-  // FIX: Properly hide onboarding and show app
   document.getElementById('onboarding').classList.add('hidden');
   document.getElementById('main-app').style.display = 'flex';
 });
 
-// Time display
+// Time Update
 function updateTime() {
   const now = new Date();
   document.getElementById('time-display').textContent = now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
 }
-setInterval(updateTime, 30000);
+setInterval(updateTime, 1000);
 updateTime();
 
-// Tab switching
-function switchTab(tab) {
-  if (tab === 1) {
-    document.getElementById('toolkit-screen').classList.add('visible');
-  } else {
-    const tabNames = ["Now", "Toolkit", "Profile", "History"];
-    console.log(`Switched to ${tabNames[tab]}`);
-  }
-}
-
-function closeToolkit() {
-  document.getElementById('toolkit-screen').classList.remove('visible');
-}
-
-// Toolkit Features
-function startBreathing() { alert("Box breathing started.\n\nInhale 4s → Hold 4s → Exhale 4s → Hold 4s."); }
-function startGrounding() { alert("5-4-3-2-1 Grounding:\nLook for 5 things you can see, 4 you can touch, 3 you can hear, 2 you can smell, 1 you can taste."); }
-function showFacts() { alert("Storm Facts:\n• Thunder cannot hurt you.\n• Your home is built to stay safe."); }
-function checkSafety() { alert("✅ You appear safe right now.\nNo active severe weather warnings in your area."); }
-
-// FIX: Improved Service Worker Registration for GitHub Pages
+[span_8](start_span)// Service Worker Fix for GitHub Pages[span_8](end_span)
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    // This dynamically handles the /skye-app/ subdirectory on GitHub
-    const repoPath = window.location.pathname.split('/')[1];
-    const swPath = window.location.pathname.includes('.github.io') ? `/${repoPath}/sw.js` : '/sw.js';
-    
-    navigator.serviceWorker.register('sw.js')
-      .then(reg => console.log('Service Worker Registered'))
-      .catch(err => console.warn('Service Worker registration failed. This is common during local development or non-https environments.'));
+    navigator.serviceWorker.register('sw.js').catch(err => {
+      console.log("Service worker registration skipped.");
+    });
   });
 }
 </script>
