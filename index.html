@@ -299,10 +299,10 @@ body{background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--text);fon
 
 <!-- BOTTOM NAV -->
 <div class="bottom-nav">
-<button class="nav-item active" onclick="switchTab('now')"><div class="nav-icon">🌦</div><div class="nav-label">Now</div></button>
-<button class="nav-item" onclick="switchTab('toolkit')"><div class="nav-icon">🧘</div><div class="nav-label">Toolkit</div></button>
-<button class="nav-item" onclick="switchTab('profile')"><div class="nav-icon">⚙️</div><div class="nav-label">Profile</div></button>
-<button class="nav-item" onclick="switchTab('history')"><div class="nav-icon">📊</div><div class="nav-label">History</div></button>
+<button class="nav-item active" onclick="switchTab('now', this)"><div class="nav-icon">🌦</div><div class="nav-label">Now</div></button>
+<button class="nav-item" onclick="switchTab('toolkit', this)"><div class="nav-icon">🧘</div><div class="nav-label">Toolkit</div></button>
+<button class="nav-item" onclick="switchTab('profile', this)"><div class="nav-icon">⚙️</div><div class="nav-label">Profile</div></button>
+<button class="nav-item" onclick="switchTab('history', this)"><div class="nav-icon">📊</div><div class="nav-label">History</div></button>
 </div>
 
 <!-- AM I SAFE MODAL -->
@@ -446,17 +446,22 @@ function getLocation() {
 
 async function fetchWeather() {
   try {
-    const pt = await fetch(`https://api.weather.gov/points/${state.lat},${state.lon}`).then(r => r.json());
+    const ptRes = await fetch(`https://api.weather.gov/points/${state.lat},${state.lon}`);
+    if (!ptRes.ok) throw new Error(`Points API error: ${ptRes.status}`);
+    const pt = await ptRes.json();
     state.pointData = pt;
     state.gridUrl = pt.properties.forecastGridData;
     const city = pt.properties.relativeLocation?.properties?.city || '';
     const st = pt.properties.relativeLocation?.properties?.state || '';
     document.getElementById('location-text').textContent = city ? `${city}, ${st}` : `${state.lat.toFixed(2)}, ${state.lon.toFixed(2)}`;
 
-    const [forecast, alerts] = await Promise.all([
-      fetch(pt.properties.forecast).then(r => r.json()),
-      fetch(`https://api.weather.gov/alerts/active?point=${state.lat},${state.lon}`).then(r => r.json())
+    const [forecastRes, alertsRes] = await Promise.all([
+      fetch(pt.properties.forecast),
+      fetch(`https://api.weather.gov/alerts/active?point=${state.lat},${state.lon}`)
     ]);
+    if (!forecastRes.ok) throw new Error(`Forecast API error: ${forecastRes.status}`);
+    if (!alertsRes.ok) throw new Error(`Alerts API error: ${alertsRes.status}`);
+    const [forecast, alerts] = await Promise.all([forecastRes.json(), alertsRes.json()]);
 
     state.forecast = forecast;
     state.alerts = alerts.features || [];
@@ -505,7 +510,7 @@ function updateAlertBanner() {
   const isWarning = severity === 'Extreme' || severity === 'Severe';
   banner.className = `alert-banner visible ${isWarning ? 'warning' : 'watch'}`;
   document.getElementById('alert-title').textContent = a.event;
-  document.getElementById('alert-desc').textContent = a.headline || a.description?.slice(0, 150) + '...';
+  document.getElementById('alert-desc').textContent = a.headline || (a.description ? a.description.slice(0, 150) + '...' : '');
 }
 
 function updateCompanion(period) {
@@ -582,11 +587,11 @@ function closeSafeModal() {
 }
 
 // ===== TABS =====
-function switchTab(name) {
+function switchTab(name, el) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   document.getElementById('tab-' + name).classList.add('active');
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  event.currentTarget.classList.add('active');
+  el.classList.add('active');
 }
 
 // ===== SUB SCREENS =====
@@ -630,11 +635,29 @@ function saveJournal() {
 function renderJournalList() {
   const list = document.getElementById('journal-list');
   if (state.journal.length === 0) { list.innerHTML = '<p style="font-size:12px;color:var(--text4)">No entries yet.</p>'; return; }
-  list.innerHTML = state.journal.slice(0, 10).map(e => {
+  const moods = ['','😰','😟','😐','😌','😊'];
+  list.innerHTML = '';
+  state.journal.slice(0, 10).forEach(e => {
     const d = new Date(e.date);
-    const moods = ['','😰','😟','😐','😌','😊'];
-    return `<div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:8px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><span style="font-size:20px">${moods[e.mood]}</span><span style="font-size:10px;color:var(--text4)">${d.toLocaleDateString()}</span></div><p style="font-size:12px;color:var(--text3)">${e.text || 'No notes'}</p></div>`;
-  }).join('');
+    const card = document.createElement('div');
+    card.style.cssText = 'background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:8px';
+    const header = document.createElement('div');
+    header.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin-bottom:4px';
+    const moodSpan = document.createElement('span');
+    moodSpan.style.fontSize = '20px';
+    moodSpan.textContent = moods[e.mood] || '';
+    const dateSpan = document.createElement('span');
+    dateSpan.style.cssText = 'font-size:10px;color:var(--text4)';
+    dateSpan.textContent = d.toLocaleDateString();
+    header.appendChild(moodSpan);
+    header.appendChild(dateSpan);
+    const text = document.createElement('p');
+    text.style.cssText = 'font-size:12px;color:var(--text3)';
+    text.textContent = e.text || 'No notes';
+    card.appendChild(header);
+    card.appendChild(text);
+    list.appendChild(card);
+  });
   const avg = state.journal.reduce((a, e) => a + e.mood, 0) / state.journal.length;
   document.getElementById('stat-storms').textContent = state.journal.length;
   document.getElementById('stat-anxiety').textContent = avg.toFixed(1);
@@ -687,7 +710,14 @@ function renderFacts() {
 
 // ===== PROFILE =====
 function renderProfileTriggers() {
-  document.getElementById('profile-triggers').innerHTML = state.triggers.map(t => `<span style="padding:6px 12px;border-radius:16px;background:var(--safe-bg);border:1px solid var(--safe-border);color:var(--safe);font-size:11px">${t}</span>`).join('');
+  const triggersEl = document.getElementById('profile-triggers');
+  triggersEl.innerHTML = '';
+  state.triggers.forEach(t => {
+    const span = document.createElement('span');
+    span.style.cssText = 'padding:6px 12px;border-radius:16px;background:var(--safe-bg);border:1px solid var(--safe-border);color:var(--safe);font-size:11px';
+    span.textContent = t;
+    triggersEl.appendChild(span);
+  });
 }
 
 // ===== FONT SIZE (Kody's feedback) =====

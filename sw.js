@@ -33,8 +33,10 @@ event.respondWith(
 fetch(event.request)
 .then(response => {
 // Cache successful API responses for offline fallback
-const clone = response.clone();
-caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+if (response.ok) {
+  const clone = response.clone();
+  caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+}
 return response;
 })
 .catch(() => {
