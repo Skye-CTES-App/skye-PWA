@@ -754,5 +754,13 @@ function getWeatherIcon(forecast) {
   return '🌤';
 }
 </script>
+  <script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js')
+      .then(() => console.log("Skye is ready for offline use!"))
+      .catch(err => console.log("Service Worker error:", err));
+  }
+</script>
+
 </body>
 </html>
