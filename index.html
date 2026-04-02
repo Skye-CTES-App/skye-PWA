@@ -8,135 +8,166 @@
     <meta name="theme-color" content="#0d1117">
     <link rel="manifest" href="manifest.json">
     <title>Skye — Calm Through Every Storm</title>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #0d1117; --card: rgba(255,255,255,0.04); --border: rgba(255,255,255,0.1);
-            --text: #e8f0f8; --text2: #7a9ab4; --text3: #5d7a96;
-            /* Official 3-State Colors */
+            --bg: #0d1117; --card: rgba(255,255,255,0.06); --border: 1px solid rgba(255,255,255,0.1);
+            --text: #e8f0f8; --text-dim: #7a9ab4;
+            /* 3-State Colors */
+            --status-color: #1d9e75; /* Default Green */
             --safe: #1d9e75; --watch: #FFD100; --warn: #C0386A;
-            --blue: #4a90c8; --purple: #534ab7; --amber: #EF9F27;
-            --font-size: 14px;
+            --font-size: 16px;
         }
 
-        body {
-            background: linear-gradient(to bottom, #0d1117, #161b22, #000); /* Dark sky gradient */
-            font-family: 'DM Sans', sans-serif; color: var(--text); 
-            margin: 0; overscroll-behavior: none; min-height: 100vh;
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { 
+            margin: 0; background: linear-gradient(to bottom, #0d1117, #050505); 
+            color: var(--text); font-family: 'DM Sans', sans-serif;
+            overscroll-behavior: none; min-height: 100dvh; overflow-x: hidden;
         }
 
         /* Animated Stars */
-        .stars { position: fixed; top: 0; left: 0; width: 100%; height: 40%; pointer-events: none; z-index: 0; }
-        @keyframes twinkle { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
-        .star { position: absolute; background: white; border-radius: 50%; opacity: 0.5; animation: twinkle 3s infinite; }
+        #star-container { position: fixed; top: 0; left: 0; width: 100%; height: 50%; z-index: 0; pointer-events: none; }
+        .star { position: absolute; background: white; border-radius: 50%; opacity: 0.3; animation: twinkle var(--d) infinite; }
+        @keyframes twinkle { 0%, 100% { opacity: 0.3; transform: scale(1); } 50% { opacity: 0.8; transform: scale(1.2); } }
 
-        .app { max-width: 430px; margin: 0 auto; position: relative; z-index: 1; min-height: 100dvh; display: flex; flex-direction: column; }
+        .app-container { position: relative; z-index: 1; padding: 20px; padding-bottom: 100px; max-width: 430px; margin: 0 auto; }
 
-        /* Onboarding / Fear Profile */
-        #onboarding { position: fixed; inset: 0; background: var(--bg); z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 32px; text-align: center; }
-        .trigger-chip { padding: 10px 20px; border-radius: 20px; border: 1px solid var(--border); margin: 4px; display: inline-block; cursor: pointer; font-size: 13px; }
-        .trigger-chip.active { border-color: var(--safe); color: var(--safe); background: rgba(29, 158, 117, 0.1); }
-
-        /* Temperature Display */
-        .hero-temp { font-family: 'DM Serif Display', serif; font-size: 64px; margin-top: 10px; }
+        /* Location & Temp */
+        .location-pill { display: inline-flex; align-items: center; background: var(--card); padding: 6px 12px; border-radius: 20px; border: var(--border); font-size: 13px; margin-bottom: 20px; }
+        .dot { height: 6px; width: 6px; background: var(--status-color); border-radius: 50%; margin-right: 8px; box-shadow: 0 0 8px var(--status-color); }
         
-        /* Nav & Cards */
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; max-width: 430px; display: flex; background: #0d1117; border-top: 1px solid var(--border); padding-bottom: env(safe-area-inset-bottom); }
-        .nav-item { flex: 1; text-align: center; padding: 12px; font-size: 10px; cursor: pointer; color: var(--text3); }
-        .nav-item.active { color: var(--safe); }
+        .temp-val { font-family: 'DM Serif Display', serif; font-size: 80px; line-height: 1; margin: 10px 0; }
+        .condition { text-transform: uppercase; letter-spacing: 2px; font-size: 12px; color: var(--text-dim); }
+
+        /* Safe Card */
+        .status-card { background: rgba(29, 158, 117, 0.1); border: 1px solid var(--status-color); border-radius: 16px; padding: 20px; margin: 24px 0; text-align: left; position: relative; }
         
-        .safe-card { background: rgba(29, 158, 117, 0.15); border: 1px solid var(--safe); border-radius: 16px; padding: 20px; margin: 16px; text-align: center; }
-        .glowing-dot { height: 8px; width: 8px; background: var(--safe); border-radius: 50%; display: inline-block; box-shadow: 0 0 8px var(--safe); margin-right: 8px; }
+        /* 2x2 Grid */
+        .tools-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 24px; }
+        .tool-card { background: var(--card); border: var(--border); padding: 24px 16px; border-radius: 16px; text-align: center; transition: transform 0.2s; }
+        .tool-card:active { transform: scale(0.95); }
+        .tool-icon { font-size: 24px; margin-bottom: 8px; display: block; }
 
-        /* Grounding Grid */
-        .grounding-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 16px; }
-        .grounding-card { background: var(--card); border: 1px solid var(--border); padding: 20px; border-radius: 12px; text-align: center; font-size: 13px; }
+        /* Nav Bar */
+        .nav-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(13,17,23,0.95); backdrop-filter: blur(10px); border-top: var(--border); display: flex; justify-content: space-around; padding: 12px 0 env(safe-area-inset-bottom); z-index: 100; }
+        .nav-btn { background: none; border: none; color: var(--text-dim); font-size: 10px; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .nav-btn.active { color: var(--safe); }
 
-        .hidden { display: none !important; }
+        /* Modals */
+        .modal { position: fixed; inset: 0; background: var(--bg); z-index: 1000; padding: 30px; display: none; flex-direction: column; }
+        .modal.active { display: flex; }
+        .close-btn { position: absolute; top: 20px; right: 20px; font-size: 24px; }
+
+        .hidden { display: none; }
     </style>
 </head>
 <body>
-    <div class="stars" id="star-field"></div>
 
-    <div id="onboarding">
-        <h1 style="font-family: 'DM Serif Display'; font-size: 32px;">Welcome to Skye</h1>
-        <p style="color: var(--text2); margin: 16px 0;">Tell Skye what scares you most during storms so we can speak your language.</p>
-        <div id="trigger-chips">
-            <div class="trigger-chip" onclick="toggleTrigger(this)">Tornadoes</div>
-            <div class="trigger-chip" onclick="toggleTrigger(this)">Lightning</div>
-            <div class="trigger-chip" onclick="toggleTrigger(this)">Loud Thunder</div>
-            <div class="trigger-chip" onclick="toggleTrigger(this)">Strong Wind</div>
-            <div class="trigger-chip" onclick="toggleTrigger(this)">Power Outages</div>
+    <div id="star-container"></div>
+
+    <div class="app-container">
+        <div class="location-pill">
+            <span class="dot"></span> <span id="city-name">Locating...</span>
         </div>
-        <button onclick="finishOnboarding()" style="margin-top: 32px; width: 100%; padding: 16px; background: var(--safe); border: none; border-radius: 12px; color: white; font-weight: 600;">Continue</button>
-    </div>
 
-    <div class="app">
-        <div style="padding: 20px; text-align: center;">
-            <div style="font-size: 12px; color: var(--text3); background: var(--card); padding: 4px 12px; border-radius: 20px; display: inline-block;">
-                <span class="glowing-dot"></span> <span id="loc-name">Locating...</span>
+        <div class="temp-val" id="current-temp">--°</div>
+        <div class="condition" id="current-condition">Updating Weather...</div>
+
+        <div class="status-card" id="main-status-card">
+            <div style="font-weight: 700; color: var(--status-color); margin-bottom: 4px;">YOU ARE SAFE</div>
+            <div style="font-size: 13px; color: var(--text-dim);" id="status-msg">The sky is clear. Skye is watching the radar for you.</div>
+        </div>
+
+        <div class="tools-grid">
+            <div class="tool-card" onclick="openModal('breathe')">
+                <span class="tool-icon">🌬</span>
+                <div style="font-weight: 600;">Breathe</div>
             </div>
-            <div class="hero-temp" id="temp-display">--°</div>
-            <div id="condition-text" style="text-transform: uppercase; letter-spacing: 2px; font-size: 12px; color: var(--text2);">Clear Skies</div>
+            <div class="tool-card" onclick="openModal('ground')">
+                <span class="tool-icon">🌿</span>
+                <div style="font-weight: 600;">Ground Me</div>
+            </div>
+            <div class="tool-card" onclick="openModal('explain')">
+                <span class="tool-icon">❓</span>
+                <div style="font-weight: 600;">Explain That</div>
+            </div>
+            <div class="tool-card" onclick="openModal('sounds')">
+                <span class="tool-icon">🌧</span>
+                <div style="font-weight: 600;">Rain Sounds</div>
+            </div>
         </div>
-
-        <div class="safe-card">
-            <div style="font-weight: 600; color: var(--safe);">YOU ARE SAFE</div>
-            <div style="font-size: 12px; margin-top: 4px; color: var(--text2);">No active threats for your exact location.</div>
-        </div>
-
-        <div class="grounding-grid">
-            <div class="grounding-card">🌬<br>Breathe</div>
-            <div class="grounding-card">🌿<br>Ground Me</div>
-            <div class="grounding-card">❓<br>Explain That</div>
-            <div class="grounding-card">🌧<br>Rain Sounds</div>
-        </div>
-
-        <nav class="bottom-nav">
-            <div class="nav-item active">Now</div>
-            <div class="nav-item">Radar</div>
-            <div class="nav-item">Calm</div>
-            <div class="nav-item">Profile</div>
-        </nav>
     </div>
+
+    <div id="modal-breathe" class="modal">
+        <span class="close-btn" onclick="closeModal()">✕</span>
+        <h2 style="font-family: 'DM Serif Display';">Breathe</h2>
+        <p>Follow the circle to slow your heart rate.</p>
+        </div>
+
+    <nav class="nav-bar">
+        <button class="nav-btn active"><span>📍</span>Now</button>
+        <button class="nav-btn"><span>📡</span>Radar</button>
+        <button class="nav-btn"><span>🧘</span>Calm</button>
+        <button class="nav-btn"><span>👤</span>Profile</button>
+    </nav>
 
     <script>
-        // Star Background Generator
-        const field = document.getElementById('star-field');
-        for(let i=0; i<50; i++) {
+        // 1. Create Animated Stars
+        const container = document.getElementById('star-container');
+        for (let i = 0; i < 60; i++) {
             const star = document.createElement('div');
             star.className = 'star';
             star.style.left = Math.random() * 100 + '%';
             star.style.top = Math.random() * 100 + '%';
-            star.style.width = star.style.height = Math.random() * 3 + 'px';
-            star.style.animationDelay = Math.random() * 3 + 's';
-            field.appendChild(star);
+            const size = Math.random() * 3 + 'px';
+            star.style.width = size; star.style.height = size;
+            star.style.setProperty('--d', (Math.random() * 3 + 2) + 's');
+            container.appendChild(star);
         }
 
-        // Onboarding Logic
-        function toggleTrigger(el) { el.classList.toggle('active'); }
-        function finishOnboarding() { 
-            document.getElementById('onboarding').classList.add('hidden');
-            localStorage.setItem('skye_onboarded', 'true');
-        }
-        if(localStorage.getItem('skye_onboarded')) finishOnboarding();
+        // 2. Navigation & Modals
+        function openModal(id) { document.getElementById('modal-' + id).classList.add('active'); }
+        function closeModal() { document.querySelectorAll('.modal').forEach(m => m.classList.remove('active')); }
 
-        // Real NWS API Integration
-        async function fetchWeather() {
+        // 3. Real Weather Logic (NWS API)
+        async function updateWeather() {
             navigator.geolocation.getCurrentPosition(async (pos) => {
-                const { latitude, longitude } = pos.coords;
-                const points = await fetch(`https://api.weather.gov/points/${latitude},${longitude}`).then(r => r.json());
-                const weather = await fetch(points.properties.forecast).then(r => r.json());
-                const now = weather.properties.periods[0];
-                document.getElementById('temp-display').innerText = now.temperature + '°';
-                document.getElementById('condition-text').innerText = now.shortForecast;
-                document.getElementById('loc-name').innerText = points.properties.relativeLocation.properties.city;
+                try {
+                    const res = await fetch(`https://api.weather.gov/points/${pos.coords.latitude},${pos.coords.longitude}`);
+                    const data = await res.json();
+                    const forecastRes = await fetch(data.properties.forecastHourly);
+                    const forecastData = await forecastRes.json();
+                    
+                    const now = forecastData.properties.periods[0];
+                    document.getElementById('current-temp').innerText = now.temperature + '°';
+                    document.getElementById('current-condition').innerText = now.shortForecast;
+                    document.getElementById('city-name').innerText = data.properties.relativeLocation.properties.city;
+                    
+                    // Logic for 3-state system
+                    checkAlerts(now.shortForecast);
+                } catch (e) {
+                    console.log("Weather update failed", e);
+                }
             });
         }
-        fetchWeather();
-        setInterval(fetchWeather, 300000); [span_3](start_span)// 5 min polling[span_3](end_span)
 
-        // Service Worker Registration
+        function checkAlerts(condition) {
+            const root = document.documentElement;
+            const card = document.getElementById('main-status-card');
+            if (condition.toLowerCase().includes('tornado') || condition.toLowerCase().includes('severe')) {
+                root.style.setProperty('--status-color', 'var(--warn)');
+                card.style.background = 'rgba(192, 56, 106, 0.15)';
+            } else if (condition.toLowerCase().includes('watch')) {
+                root.style.setProperty('--status-color', 'var(--watch)');
+                card.style.background = 'rgba(255, 209, 0, 0.15)';
+            }
+        }
+
+        updateWeather();
+        setInterval(updateWeather, 300000); // 5 min refresh
+
+        // 4. Service Worker
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('./sw.js');
         }
