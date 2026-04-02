@@ -1,13 +1,12 @@
 {
   "name": "Skye: Calm Through Every Storm",
   "short_name": "Skye",
-  "description": "Emotional Weather Technology — translates live weather data into calm, plain-language reassurance for people with storm anxiety.",
+  "description": "Emotional Weather Technology for storm anxiety.",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#0d1117",
   "theme_color": "#0d1117",
   "orientation": "portrait",
-  "categories": ["weather", "health", "lifestyle"],
   "icons": [
     {
       "src": "icon-192.png",
