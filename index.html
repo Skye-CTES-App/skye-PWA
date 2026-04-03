@@ -234,8 +234,31 @@ body{background:#0a0e14;font-family:'DM Sans',sans-serif;color:#e8f0f8;font-size
 .m-desc{font-size:calc(var(–fs) - 1px);color:#7a9ab4;line-height:1.6;margin-bottom:16px}
 .m-disc{font-size:calc(var(–fs) - 4px);color:#3a5168;line-height:1.5;margin-bottom:16px;padding:10px;background:rgba(255,255,255,0.04);border-radius:8px}
 .m-close{width:100%;padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,0.07);background:rgba(255,255,255,0.04);color:#7a9ab4;font-family:‘DM Sans’,sans-serif;font-size:calc(var(–fs) - 1px);cursor:pointer}
-</style>
 
+/* STORM PILL */
+.storm-pill{position:relative;z-index:2;margin:0 auto 10px;padding:6px 16px;border-radius:20px;background:rgba(74,144,200,0.15);border:1px solid rgba(74,144,200,0.25);color:#6aafd4;font-size:calc(var(–fs) - 4px);text-align:center;display:none;width:fit-content}
+.storm-pill.vis{display:block}
+/* CELEBRATION */
+.cele-ov{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:300;display:none;flex-direction:column;align-items:center;justify-content:center;padding:24px;backdrop-filter:blur(6px)}
+.cele-ov.vis{display:flex}
+.cele{background:#0d1117;border:1px solid rgba(255,255,255,0.1);border-radius:24px;padding:28px;max-width:340px;width:100%;text-align:center}
+.cele-icon{font-size:2.8em;margin-bottom:8px}
+.cele h2{font-family:‘DM Serif Display’,serif;font-size:1.3em;margin-bottom:12px;line-height:1.3}
+.cele-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:16px 0}
+.cele-stat{background:rgba(255,255,255,0.04);border-radius:10px;padding:10px}
+.cele-sn{font-size:1.3em;font-weight:600;color:#e8f0f8}
+.cele-sl{font-size:calc(var(–fs) - 5px);color:#3a5168;text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
+.cele-div{border:none;border-top:1px solid rgba(255,255,255,0.07);margin:16px 0}
+.cele-pitch{font-size:calc(var(–fs) - 2px);color:#7a9ab4;line-height:1.6;margin-bottom:16px}
+.cele-feats{text-align:left;margin-bottom:16px}
+.cele-ft{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:calc(var(–fs) - 3px);color:#7a9ab4}
+.cele-ft .star{color:#4a90c8}
+.cele-btn1{width:100%;padding:14px;border-radius:14px;border:none;background:#4a90c8;color:white;font-family:‘DM Sans’,sans-serif;font-size:var(–fs);font-weight:500;cursor:pointer;margin-bottom:8px}
+.cele-btn2{width:100%;padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,0.07);background:transparent;color:#5d7a96;font-family:‘DM Sans’,sans-serif;font-size:calc(var(–fs) - 2px);cursor:pointer}
+.lock-ov{position:relative}
+.lock-ov::after{content:’\1F512 Premium’;position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(13,17,23,0.75);border-radius:12px;font-size:calc(var(–fs) - 3px);color:#6aafd4;cursor:pointer}
+
+</style>
 </head>
 <body>
 <div class="app">
@@ -317,7 +340,7 @@ body{background:#0a0e14;font-family:'DM Sans',sans-serif;color:#e8f0f8;font-size
 
 <!-- PREMIUM BANNER -->
 
-<div class="pbanner" id="pb"><p>You've used your 3 free premium storms.</p><div class="sc">Unlock full Storm Companion, advanced journaling, and more.</div><button class="pbtn" onclick="window.open('https://buymeacoffee.com/skye.ctes/membership','_blank')">Get Skye Premium — $5/mo</button></div>
+<div class="pbanner" id="pb"><p>You've used your 3 free premium storms.</p><div class="sc">Unlock Live Storm Companion, storm progress bar, advanced journaling, and personalized briefings.</div><button class="pbtn" onclick="window.open('https://buymeacoffee.com/skye.ctes/membership','_blank')">Get Skye Premium — $5/mo</button></div>
 
 <!-- TABS -->
 
@@ -375,6 +398,30 @@ body{background:#0a0e14;font-family:'DM Sans',sans-serif;color:#e8f0f8;font-size
 <button class="ni" onclick="snav('comp',this)"><div class="nicon">🧘</div><div class="nlabel">Calm</div></button>
 <button class="ni" onclick="snav('tk',this)"><div class="nicon">🛠</div><div class="nlabel">Toolkit</div></button>
 <button class="ni" onclick="openSub('profile')"><div class="nicon">⚙️</div><div class="nlabel">Profile</div></button>
+</div>
+
+<!-- CELEBRATION MODAL -->
+
+<div class="cele-ov" id="cele-ov">
+<div class="cele">
+<div class="cele-icon">&#x1F324;</div>
+<h2>You made it through<br>3 storms with Skye.</h2>
+<div class="cele-stats">
+<div class="cele-stat"><div class="cele-sn" id="cele-sc">3</div><div class="cele-sl">Storms</div></div>
+<div class="cele-stat"><div class="cele-sn" id="cele-mood">--</div><div class="cele-sl">Avg Mood</div></div>
+<div class="cele-stat"><div class="cele-sn" id="cele-tk">0</div><div class="cele-sl">Toolkit</div></div>
+</div>
+<hr class="cele-div">
+<p class="cele-pitch">Your free storms are up. Keep the full experience going for less than a coffee a week.</p>
+<div class="cele-feats">
+<div class="cele-ft"><span class="star">&#9733;</span> Live Storm Companion with continuous updates</div>
+<div class="cele-ft"><span class="star">&#9733;</span> Storm Progress Bar with countdown</div>
+<div class="cele-ft"><span class="star">&#9733;</span> Advanced journaling with season stats</div>
+<div class="cele-ft"><span class="star">&#9733;</span> Personalized morning briefings</div>
+</div>
+<button class="cele-btn1" onclick="window.open('https://buymeacoffee.com/skye.ctes/membership','_blank')">Get Skye Premium &#8212; $5/mo</button>
+<button class="cele-btn2" onclick="closeCele()">Continue with free features</button>
+</div>
 </div>
 
 <!-- SAFE MODAL -->
@@ -531,8 +578,10 @@ function updUI(){
   updBanner();updComp(p);updBrief(p);updSBar();
   const dot=document.getElementById('s-dot');
   S.al.some(a=>['Extreme','Severe'].includes(a.properties.severity))?dot.classList.add('alert'):dot.classList.remove('alert');
-  if(S.al.length>0&&S.lastAl===0){S.sc++;localStorage.setItem('skye_sc',S.sc);checkPrem()}
+  if(S.al.length>0&&S.lastAl===0){S.sc++;localStorage.setItem('skye_sc',S.sc);checkPrem();if(S.sc===3)setTimeout(showCele,5000)}
+  updatePill();
   S.lastAl=S.al.length;
+  updatePill();
 }
 
 function updBanner(){
@@ -626,7 +675,7 @@ function renderJL(){
   const el=document.getElementById('jl');
   if(!S.jrn.length){el.innerHTML='<p style="font-size:calc(var(--fs) - 2px);color:#3a5168">No entries yet.</p>';return}
   const ms=['','😰','😟','😐','😌','😊'];
-  el.innerHTML=S.jrn.slice(0,10).map(e=>`<div class="jentry"><div class="je-head"><span style="font-size:20px">${ms[e.m]}</span><span class="je-date">${new Date(e.d).toLocaleDateString()}</span></div><p class="je-text">${e.t||'No notes'}</p></div>`).join('');
+  el.innerHTML=S.jrn.slice(0,(S.prem||S.sc<3)?50:3).map(e=>`<div class="jentry"><div class="je-head"><span style="font-size:20px">${ms[e.m]}</span><span class="je-date">${new Date(e.d).toLocaleDateString()}</span></div><p class="je-text">${e.t||'No notes'}</p></div>`).join('');
   const avg=S.jrn.reduce((a,e)=>a+e.m,0)/S.jrn.length;
   document.getElementById('ss').textContent=S.jrn.length;
   document.getElementById('sa').textContent=avg.toFixed(1);
@@ -655,6 +704,31 @@ function checkPrem(){if(S.sc>=3&&!S.prem)document.getElementById('pb').classList
 
 // Helpers
 function updClock(){document.getElementById('clock').textContent=new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})}
+
+// STORM PILL
+function updatePill(){
+  var pill=document.getElementById('storm-pill');
+  if(S.sc>=3||S.prem||S.al.length===0){pill.classList.remove('vis');return}
+  if(S.al.length>0&&S.sc<3){pill.classList.add('vis');pill.textContent='Storm '+(S.sc+1)+' of 3 on us'}
+}
+// CELEBRATION
+function showCele(){
+  var avg=S.jrn.length?(S.jrn.reduce(function(a,e){return a+e.m},0)/S.jrn.length):0;
+  document.getElementById('cele-sc').textContent=S.sc;
+  document.getElementById('cele-mood').textContent=avg?avg.toFixed(1):'--';
+  document.getElementById('cele-tk').textContent=S.tkUses;
+  document.getElementById('cele-ov').classList.add('vis');
+}
+function closeCele(){
+  document.getElementById('cele-ov').classList.remove('vis');
+  lockPrem();
+}
+function lockPrem(){
+  if(S.prem||S.sc<3)return;
+  var sb=document.getElementById('sb-wrap');
+  if(sb)sb.classList.add('lock-ov');
+}
+
 function wxI(f){if(f.includes('thunder')||f.includes('storm'))return'⛈';if(f.includes('rain')||f.includes('shower'))return'🌧';if(f.includes('snow'))return'🌨';if(f.includes('cloud')||f.includes('overcast'))return'☁️';if(f.includes('partly'))return'⛅';if(f.includes('fog'))return'🌫';if(f.includes('wind'))return'💨';if(f.includes('clear')||f.includes('sunny'))return'☀️';return'🌤'}
 </script>
 
