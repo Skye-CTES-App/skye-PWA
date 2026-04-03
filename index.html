@@ -325,7 +325,7 @@ body{background:#0a0e14;font-family:'DM Sans',sans-serif;color:#e8f0f8;overscrol
 <div class="ground-card" onclick="openSub('breathing')"><div class="ground-icon">🌬</div><div class="ground-name">Breathe</div></div>
 <div class="ground-card" onclick="openSub('grounding')"><div class="ground-icon">🌿</div><div class="ground-name">Ground me</div></div>
 <div class="ground-card" onclick="openSub('facts')"><div class="ground-icon">⚡</div><div class="ground-name">Explain that</div></div>
-<div class="ground-card" onclick="playRainSound()"><div class="ground-icon">🎵</div><div class="ground-name">Rain sounds</div></div>
+<div class="ground-card" onclick="playRainSound(event)"><div class="ground-icon">🎵</div><div class="ground-name">Rain sounds</div></div>
 </div>
 </div>
 
@@ -458,7 +458,7 @@ const S = {
   checklist: JSON.parse(localStorage.getItem('skye_checklist')||'{}'),
   fontSize: parseInt(localStorage.getItem('skye_fontsize')||'14'),
   toolkitUses: parseInt(localStorage.getItem('skye_toolkit')||'0'),
-  mood:null, breathInt:null, lastAlertState:null
+  mood:null, breathInt:null, lightningInt:null, lastAlertState:0, isFetching:false
 };
 
 // ===== INIT =====
@@ -481,8 +481,8 @@ function initOnboarding(){
   });
   document.getElementById('onboarding-done').onclick=()=>{
     S.triggers=[...document.querySelectorAll('.trigger-chip.active')].map(c=>c.dataset.trigger);
-    localStorage.setItem('skye_triggers',JSON.stringify(S.triggers));
-    localStorage.setItem('skye_onboarded','true');S.onboarded=true;
+    safeSet('skye_triggers',JSON.stringify(S.triggers));
+    safeSet('skye_onboarded','true');S.onboarded=true;
     document.getElementById('onboarding').classList.add('hidden');
     renderProfileTriggers();getLocation();
   };
@@ -497,26 +497,33 @@ function getLocation(){
 
 // ===== WEATHER =====
 async function fetchWeather(){
+  if(S.isFetching)return;
+  S.isFetching=true;
   try{
-    const pt=await fetch(`https://api.weather.gov/points/${S.lat},${S.lon}`).then(r=>r.json());
+    const ptRes=await fetch(`https://api.weather.gov/points/${S.lat},${S.lon}`);
+    if(!ptRes.ok)throw new Error(`Points ${ptRes.status}`);
+    const pt=await ptRes.json();
     const city=pt.properties.relativeLocation?.properties?.city||'';
     const st=pt.properties.relativeLocation?.properties?.state||'';
     document.getElementById('location-text').textContent=city?`${city}, ${st}`:`${S.lat.toFixed(2)}, ${S.lon.toFixed(2)}`;
-    const[fc,al]=await Promise.all([
-      fetch(pt.properties.forecast).then(r=>r.json()),
-      fetch(`https://api.weather.gov/alerts/active?point=${S.lat},${S.lon}`).then(r=>r.json())
+    const[fcRes,alRes]=await Promise.all([
+      fetch(pt.properties.forecast),
+      fetch(`https://api.weather.gov/alerts/active?point=${S.lat},${S.lon}`)
     ]);
+    if(!fcRes.ok)throw new Error(`Forecast ${fcRes.status}`);
+    if(!alRes.ok)throw new Error(`Alerts ${alRes.status}`);
+    const fc=await fcRes.json();const al=await alRes.json();
     S.forecast=fc;S.alerts=al.features||[];
     updateUI();
     const interval=S.alerts.length>0?60000:300000;
-    setTimeout(fetchWeather,interval);
-  }catch(e){console.error('Fetch error:',e);setTimeout(fetchWeather,300000)}
+    S.isFetching=false;setTimeout(fetchWeather,interval);
+  }catch(e){console.error('Fetch error:',e);S.isFetching=false;setTimeout(fetchWeather,300000)}
 }
 
 // ===== UI UPDATE =====
 function updateUI(){
   const p=S.forecast?.properties?.periods?.[0];if(!p)return;
-  const fc=p.shortForecast.toLowerCase();
+  const fc=p.shortForecast?.toLowerCase()??'';
 
   // Hero
   document.getElementById('hero-temp').textContent=p.temperature+'°';
@@ -529,6 +536,7 @@ function updateUI(){
 
   // Lightning flash during storms
   if(fc.includes('thunder')||fc.includes('storm')){flashLightning()}
+  else if(S.lightningInt){clearInterval(S.lightningInt);S.lightningInt=null}
 
   // Details
   document.getElementById('cond-val').textContent=p.shortForecast.split(' ').slice(0,2).join(' ');
@@ -553,7 +561,7 @@ function updateUI(){
   if(S.alerts.some(a=>['Extreme','Severe'].includes(a.properties.severity))){dot.classList.add('alert')}
   else{dot.classList.remove('alert')}
   // Track storms
-  if(S.alerts.length>0&&S.lastAlertState===0){S.stormCount++;localStorage.setItem('skye_storms',S.stormCount);checkPremium()}
+  if(S.alerts.length>0&&S.lastAlertState===0){S.stormCount++;safeSet('skye_storms',S.stormCount);checkPremium()}
   S.lastAlertState=S.alerts.length;
 }
 
@@ -569,11 +577,11 @@ function updateAlertBanner(){
   const isWarn=sev==='Extreme'||sev==='Severe';
   b.className=`alert-banner visible ${isWarn?'warning':'watch'}`;
   document.getElementById('alert-title').textContent=a.event;
-  document.getElementById('alert-desc').textContent=a.headline||a.description?.slice(0,180)+'...';
+  document.getElementById('alert-desc').textContent=a.headline||(a.description?.slice(0,180)??'')+'...';
 }
 
 function updateCompanion(p){
-  const fc=p.shortForecast.toLowerCase();let msg='';
+  const fc=p.shortForecast?.toLowerCase()??'';let msg='';
   const triggers=S.triggers;
   if(S.alerts.length>0){
     const a=S.alerts[0].properties;
@@ -670,7 +678,7 @@ function switchNav(name,el){
 }
 
 // ===== SUB SCREENS =====
-function openSub(n){document.getElementById('sub-'+n).classList.add('visible');if(['breathing','grounding','checklist','facts','journal'].includes(n)){S.toolkitUses++;localStorage.setItem('skye_toolkit',S.toolkitUses);document.getElementById('stat-toolkit').textContent=S.toolkitUses}}
+function openSub(n){document.getElementById('sub-'+n).classList.add('visible');if(['breathing','grounding','checklist','facts','journal'].includes(n)){S.toolkitUses++;safeSet('skye_toolkit',S.toolkitUses);document.getElementById('stat-toolkit').textContent=S.toolkitUses}}
 function closeSub(n){document.getElementById('sub-'+n).classList.remove('visible')}
 
 // ===== BREATHING =====
@@ -689,7 +697,7 @@ function saveJournal(){
   if(!S.mood)return;
   S.journal.unshift({date:new Date().toISOString(),mood:S.mood,text:document.getElementById('journal-text').value});
   if(S.journal.length>50)S.journal=S.journal.slice(0,50);
-  localStorage.setItem('skye_journal',JSON.stringify(S.journal));
+  safeSet('skye_journal',JSON.stringify(S.journal));
   document.getElementById('journal-text').value='';S.mood=null;
   document.querySelectorAll('.mood-btn').forEach(b=>b.classList.remove('selected'));
   renderJournalList();closeSub('journal');
@@ -709,7 +717,7 @@ const checklistItems=['Helmet for each family member (blankets and pillows won\'
 function renderChecklist(){
   document.getElementById('checklist-items').innerHTML=checklistItems.map((item,i)=>`<div class="check-item${S.checklist[i]?' done':''}" onclick="toggleCheck(${i})"><div class="check-box"></div><div class="check-text">${item}</div></div>`).join('');
 }
-function toggleCheck(i){S.checklist[i]=!S.checklist[i];localStorage.setItem('skye_checklist',JSON.stringify(S.checklist));renderChecklist()}
+function toggleCheck(i){S.checklist[i]=!S.checklist[i];safeSet('skye_checklist',JSON.stringify(S.checklist));renderChecklist()}
 
 // ===== FACTS =====
 const facts=[
@@ -732,7 +740,7 @@ function renderProfileTriggers(){document.getElementById('profile-triggers').inn
 
 // ===== FONT SIZE =====
 function setFont(s){
-  document.documentElement.style.fontSize=s+'px';S.fontSize=s;localStorage.setItem('skye_fontsize',s);
+  document.documentElement.style.fontSize=s+'px';S.fontSize=s;safeSet('skye_fontsize',s);
   document.querySelectorAll('.font-opt').forEach(o=>o.classList.toggle('active',parseInt(o.dataset.size)===s));
 }
 
@@ -740,13 +748,14 @@ function setFont(s){
 function checkPremium(){if(S.stormCount>=3&&!S.isPremium)document.getElementById('premium-banner').classList.add('visible')}
 
 // ===== RAIN SOUND =====
-function playRainSound(){
+function playRainSound(event){
   // Placeholder — in future version, this plays ambient audio
   const card=event.currentTarget;card.querySelector('.ground-name').textContent='Coming soon';
-  setTimeout(()=>{card.querySelector('.ground-name').textContent='Rain sounds'},2000);
+  setTimeout(()=>{if(card.isConnected)card.querySelector('.ground-name').textContent='Rain sounds'},2000);
 }
 
 // ===== HELPERS =====
+function safeSet(k,v){try{safeSet(k,v)}catch(e){console.warn('localStorage full:',e)}}
 function updateTime(){document.getElementById('time-display').textContent=new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})}
 function wxIcon(fc){
   if(fc.includes('thunder')||fc.includes('storm'))return'⛈';if(fc.includes('rain')||fc.includes('shower'))return'🌧';
@@ -756,7 +765,8 @@ function wxIcon(fc){
 }
 function flashLightning(){
   const l=document.getElementById('lightning');
-  setInterval(()=>{l.classList.add('flash');setTimeout(()=>l.classList.remove('flash'),200)},Math.random()*8000+4000);
+  if(S.lightningInt)return;
+  S.lightningInt=setInterval(()=>{l.classList.add('flash');setTimeout(()=>l.classList.remove('flash'),200)},Math.random()*8000+4000);
 }
 </script>
 
