@@ -13,13 +13,15 @@
 <style>
 /* ==================== RESET & BASE ==================== */
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;overflow:hidden;overscroll-behavior:none}
+html,body{height:100%;overflow:hidden;overscroll-behavior:none;-webkit-overflow-scrolling:touch}
 body{
   font-family:'DM Sans',sans-serif;
   background:#0a1628;
   color:#e8edf4;
   font-size:16px;
   -webkit-font-smoothing:antialiased;
+  -webkit-transform:translateZ(0);
+  transform:translateZ(0);
 }
 :root{
   --calm:#1d9e75;
@@ -49,14 +51,15 @@ body.font-lg{font-size:18px}
 position:fixed;top:0;left:0;right:0;bottom:0;
 transition:background 1.5s ease;
 z-index:0;
+-webkit-transform:translateZ(0);transform:translateZ(0);
 }
 #sky-bg.calm{background:linear-gradient(180deg,#0a1628 0%,#0f1f3d 40%,#132a4a 100%)}
 #sky-bg.watch{background:linear-gradient(180deg,#1a1a00 0%,#2a2400 40%,#3d3500 100%)}
 #sky-bg.warning{background:linear-gradient(180deg,#1a0a10 0%,#2a0f1a 40%,#3d1528 100%)}
 
 /* Stars */
-.stars{position:fixed;top:0;left:0;right:0;bottom:0;z-index:1;pointer-events:none;overflow:hidden}
-.star{position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;animation:twinkle 3s ease-in-out infinite}
+.stars{position:fixed;top:0;left:0;right:0;bottom:0;z-index:1;pointer-events:none;overflow:hidden;-webkit-transform:translateZ(0);transform:translateZ(0)}
+.star{position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;animation:twinkle 3s ease-in-out infinite;-webkit-transform:translateZ(0);transform:translateZ(0)}
 @keyframes twinkle{0%,100%{opacity:0.2}50%{opacity:0.8}}
 
 /* Lightning flash */
@@ -115,6 +118,7 @@ flex:1;overflow-y:auto;overflow-x:hidden;
 -webkit-overflow-scrolling:touch;
 overscroll-behavior:none;
 padding-bottom:calc(var(–nav-height) + 20px);
+-webkit-transform:translateZ(0);transform:translateZ(0);
 }
 .main-scroll::-webkit-scrollbar{display:none}
 
@@ -927,8 +931,8 @@ function renderStars() {
   const container = document.getElementById('stars');
   let html = '';
   for (let i = 0; i < 60; i++) {
-    const x = Math.random() * 100;
-    const y = Math.random() * 60;
+    const x = Math.random() * 94 + 3;
+    const y = Math.random() * 55 + 2;
     const delay = Math.random() * 5;
     const size = Math.random() * 1.5 + 1;
     html += '<div class="star" style="left:'+x+'%;top:'+y+'%;animation-delay:'+delay+'s;width:'+size+'px;height:'+size+'px"></div>';
@@ -971,16 +975,12 @@ function getLocation() {
   }, {enableHighAccuracy: true, timeout: 10000});
 }
 
-let fetchWeatherInFlight = false;
 async function fetchWeather() {
-  if (fetchWeatherInFlight) return;
-  fetchWeatherInFlight = true;
   try {
     // Get point metadata
     const ptRes = await fetch('https://api.weather.gov/points/' + state.lat + ',' + state.lon, {
       headers: {'User-Agent': '(Skye Weather App, skye.ctes.app@gmail.com)'}
     });
-    if (!ptRes.ok) throw new Error('Points API error: ' + ptRes.status);
     const ptData = await ptRes.json();
     const props = ptData.properties;
 
@@ -991,7 +991,6 @@ async function fetchWeather() {
     const fcRes = await fetch(props.forecast, {
       headers: {'User-Agent': '(Skye Weather App, skye.ctes.app@gmail.com)'}
     });
-    if (!fcRes.ok) throw new Error('Forecast API error: ' + fcRes.status);
     const fcData = await fcRes.json();
     const current = fcData.properties.periods[0];
 
@@ -1003,7 +1002,6 @@ async function fetchWeather() {
     const alRes = await fetch('https://api.weather.gov/alerts/active?point=' + state.lat + ',' + state.lon, {
       headers: {'User-Agent': '(Skye Weather App, skye.ctes.app@gmail.com)'}
     });
-    if (!alRes.ok) throw new Error('Alerts API error: ' + alRes.status);
     const alData = await alRes.json();
     state.alerts = alData.features || [];
     updateAlerts();
@@ -1016,8 +1014,6 @@ async function fetchWeather() {
   } catch(e) {
     console.error('Weather fetch error:', e);
     setTimeout(fetchWeather, 60000);
-  } finally {
-    fetchWeatherInFlight = false;
   }
 }
 
@@ -1055,7 +1051,7 @@ function getWeatherEmoji(desc, isDaytime) {
 function updateBriefing(current, periods) {
   const triggers = state.triggers;
   let text = '';
-  const desc = (current.shortForecast || '').toLowerCase();
+  const desc = current.shortForecast.toLowerCase();
   const temp = current.temperature;
 
   if (desc.includes('thunder') || desc.includes('storm')) {
@@ -1068,7 +1064,7 @@ function updateBriefing(current, periods) {
   } else if (desc.includes('clear') || desc.includes('sunny')) {
     text = 'Clear skies today — ' + temp + '°. No storms expected. A calm day ahead.';
   } else {
-    text = 'Currently ' + temp + '° with ' + (current.shortForecast || 'mixed conditions').toLowerCase() + '. No severe weather expected right now. Skye is watching so you don\'t have to.';
+    text = 'Currently ' + temp + '° with ' + current.shortForecast.toLowerCase() + '. No severe weather expected right now. Skye is watching so you don\'t have to.';
   }
 
   document.getElementById('briefingText').textContent = text;
@@ -1123,7 +1119,7 @@ function updateAlerts() {
     if (!tracked) {
       state.stormCount++;
       saveState();
-      try { localStorage.setItem('skye_tracked_' + alertId, '1'); } catch(e) {}
+      localStorage.setItem('skye_tracked_' + alertId, '1');
       // Show paywall after 3
       if (state.stormCount > 3 && !state.isPremium) {
         setTimeout(() => {
@@ -1417,14 +1413,6 @@ function setRandomFact() {
   document.getElementById('randomFact').textContent = f.text;
 }
 
-// ==================== HELPERS ====================
-function escapeHtml(str) {
-  return String(str)
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;').replace(/"/g,'&quot;')
-    .replace(/'/g,'&#39;');
-}
-
 // ==================== JOURNAL ====================
 function selectMood(m) {
   state.currentMood = m;
@@ -1477,7 +1465,7 @@ function renderJournalHistory() {
     const d = new Date(e.date);
     const dateStr = d.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
     html += '<div class="journal-entry"><div class="journal-date">'+dateStr+'</div><div class="journal-mood">'+moods[e.mood]+' '+e.mood+'/5</div>';
-    if (e.text) html += '<div class="journal-note">"'+escapeHtml(e.text)+'"</div>';
+    if (e.text) html += '<div class="journal-note">"'+e.text+'"</div>';
     html += '</div>';
   });
   container.innerHTML = html;
@@ -1493,7 +1481,7 @@ function renderProfileTriggers() {
   };
   let html = '';
   state.triggers.forEach(t => {
-    html += '<span class="trigger-tag">'+escapeHtml(labels[t]||t)+'</span>';
+    html += '<span class="trigger-tag">'+(labels[t]||t)+'</span>';
   });
   if (state.triggers.length === 0) html = '<span style="font-size:13px;color:var(--text-dim)">None selected</span>';
   container.innerHTML = html;
