@@ -3,733 +3,1519 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#0d1117">
-<link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="theme-color" content="#0a1628">
 <title>Skye — Calm Through Every Storm</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<link rel="manifest" href="manifest.json">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
 <style>
-:root{--fs:14px}
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{background:#0a0e14;font-family:'DM Sans',sans-serif;color:#e8f0f8;font-size:var(--fs);overscroll-behavior:none;min-height:100vh;min-height:100dvh;display:flex;justify-content:center}
-.app{width:100%;max-width:430px;min-height:100vh;min-height:100dvh;background:#0d1117;position:relative;overflow:hidden;display:flex;flex-direction:column}
+/* ==================== RESET & BASE ==================== */
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;overscroll-behavior:none}
+body{
+  font-family:'DM Sans',sans-serif;
+  background:#0a1628;
+  color:#e8edf4;
+  font-size:16px;
+  -webkit-font-smoothing:antialiased;
+}
+:root{
+  --calm:#1d9e75;
+  --calm-bg:linear-gradient(180deg,#0a1628 0%,#0f1f3d 40%,#132a4a 100%);
+  --watch:#FFD100;
+  --watch-bg:linear-gradient(180deg,#1a1a00 0%,#2a2400 40%,#3d3500 100%);
+  --warning:#C0386A;
+  --warning-bg:linear-gradient(180deg,#1a0a10 0%,#2a0f1a 40%,#3d1528 100%);
+  --card-bg:rgba(255,255,255,0.06);
+  --card-border:rgba(255,255,255,0.08);
+  --text-primary:#e8edf4;
+  --text-secondary:rgba(232,237,244,0.6);
+  --text-dim:rgba(232,237,244,0.35);
+  --accent:#4a9eff;
+  --font-sm:0.85em;
+  --font-md:1em;
+  --font-lg:1.15em;
+  --nav-height:72px;
+  --status-color:var(--calm);
+}
+body.font-sm{font-size:14px}
+body.font-md{font-size:16px}
+body.font-lg{font-size:18px}
 
-/* Sky BG */
-.sky-bg{position:absolute;top:0;left:0;right:0;height:220px;background:linear-gradient(180deg,#0a1628 0%,#112240 60%,#0d1117 100%);overflow:hidden;z-index:0;transition:all 1s}
-.sky-bg.watch-sky{background:linear-gradient(180deg,#1a1800 0%,#2a2510 60%,#0d1117 100%)}
-.sky-bg.warn-sky{background:linear-gradient(180deg,#1a0810 0%,#2a1020 60%,#0d1117 100%)}
-.star{position:absolute;background:white;border-radius:50%;animation:twinkle 3s infinite alternate}
-@keyframes twinkle{0%{opacity:.2}100%{opacity:.6}}
-.cloud-layer{position:absolute;bottom:0;left:-20px;right:-20px;height:60px;background:radial-gradient(ellipse 200px 40px at 50% 80%,#1a2a3a 0%,transparent 70%),radial-gradient(ellipse 140px 30px at 20% 90%,#1a2a3a 0%,transparent 70%),radial-gradient(ellipse 160px 35px at 80% 85%,#182232 0%,transparent 70%)}
-.lightning-flash{position:absolute;top:20px;left:55%;opacity:0;font-size:40px;transition:opacity .1s}
-.lightning-flash.flash{opacity:.3}
+/* ==================== SKY BACKGROUND ==================== */
+#sky-bg{
+position:fixed;top:0;left:0;right:0;bottom:0;
+transition:background 1.5s ease;
+z-index:0;
+}
+#sky-bg.calm{background:linear-gradient(180deg,#0a1628 0%,#0f1f3d 40%,#132a4a 100%)}
+#sky-bg.watch{background:linear-gradient(180deg,#1a1a00 0%,#2a2400 40%,#3d3500 100%)}
+#sky-bg.warning{background:linear-gradient(180deg,#1a0a10 0%,#2a0f1a 40%,#3d1528 100%)}
 
-/* Onboarding */
-.onboarding{position:fixed;inset:0;background:#0d1117;z-index:1000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;transition:opacity .3s}
-.onboarding.hidden{display:none}
-.ob-icon{font-size:48px;margin-bottom:16px}
-.ob-title{font-family:‘DM Serif Display’,serif;font-size:28px;margin-bottom:4px}
-.ob-sub{font-size:12px;color:#5d7a96;text-transform:uppercase;letter-spacing:.1em;margin-bottom:24px;font-weight:400}
-.ob-desc{color:#5d7a96;font-size:calc(var(–fs) - 1px);margin-bottom:28px;line-height:1.6;max-width:300px}
-.ob-chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:32px;max-width:320px}
-.chip{padding:8px 16px;border-radius:20px;border:1px solid rgba(255,255,255,0.07);background:rgba(255,255,255,0.04);color:#5d7a96;font-size:calc(var(–fs) - 2px);cursor:pointer;transition:all .2s;font-family:‘DM Sans’,sans-serif}
-.chip.on{border-color:#1d9e75;color:#5dcaa5;background:rgba(15,110,86,0.15)}
-.ob-btn{width:100%;max-width:300px;padding:14px;border-radius:14px;border:none;background:#1d9e75;color:white;font-family:‘DM Sans’,sans-serif;font-size:var(–fs);font-weight:500;cursor:pointer;transition:opacity .2s}
-.ob-btn:disabled{opacity:.3}
+/* Stars */
+.stars{position:fixed;top:0;left:0;right:0;bottom:0;z-index:1;pointer-events:none;overflow:hidden}
+.star{position:absolute;width:2px;height:2px;background:#fff;border-radius:50%;animation:twinkle 3s ease-in-out infinite}
+@keyframes twinkle{0%,100%{opacity:0.2}50%{opacity:0.8}}
 
-/* Premium explainer (after onboarding) */
-.premium-explainer{position:fixed;inset:0;background:#0d1117;z-index:999;display:none;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center}
-.premium-explainer.visible{display:flex}
-.pe-icon{font-size:36px;margin-bottom:12px}
-.pe-title{font-family:‘DM Serif Display’,serif;font-size:22px;margin-bottom:6px}
-.pe-sub{color:#5dcaa5;font-size:calc(var(–fs) - 1px);margin-bottom:20px;font-weight:500}
-.pe-grid{width:100%;max-width:320px;margin-bottom:24px}
-.pe-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:calc(var(–fs) - 2px)}
-.pe-feature{color:#7a9ab4;text-align:left;flex:1}
-.pe-free,.pe-prem{width:50px;text-align:center}
-.pe-free{color:#5dcaa5}
-.pe-prem{color:#6aafd4}
-.pe-header{font-weight:600;color:#e8f0f8;border-bottom:1px solid rgba(255,255,255,0.12)}
-.pe-note{font-size:calc(var(–fs) - 3px);color:#3a5168;margin-bottom:20px;max-width:280px;line-height:1.5}
+/* Lightning flash */
+.lightning{position:fixed;top:0;left:0;right:0;bottom:0;z-index:2;pointer-events:none;opacity:0;background:rgba(255,255,255,0.15)}
+.lightning.flash{animation:lightningFlash 0.3s ease-out}
+@keyframes lightningFlash{0%{opacity:0.8}100%{opacity:0}}
 
-/* Top bar */
-.top-bar{position:relative;z-index:2;display:flex;justify-content:space-between;align-items:center;padding:env(safe-area-inset-top,14px) 16px 8px}
-.loc-pill{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.07);border-radius:20px;padding:4px 10px;color:#9ab0c8;font-size:calc(var(–fs) - 3px)}
-.s-dot{width:6px;height:6px;border-radius:50%;background:#1d9e75;flex-shrink:0}
-.s-dot.offline{background:#EF9F27}
-.s-dot.alert{background:#C0386A;animation:pdot 1.5s infinite}
-@keyframes pdot{0%,100%{opacity:1}50%{opacity:.4}}
-.t-disp{font-size:calc(var(–fs) - 4px);color:#3a5168}
+/* ==================== APP SHELL ==================== */
+#app{position:relative;z-index:10;height:100%;display:flex;flex-direction:column}
 
-/* Hero */
-.hero{position:relative;z-index:2;padding:8px 16px 16px;text-align:center;height:170px;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.h-icon{font-size:36px;margin-bottom:6px}
-.h-temp{font-family:‘DM Serif Display’,serif;font-size:52px;color:#e8f0f8;line-height:1;margin-bottom:2px}
-.h-cond{font-size:calc(var(–fs) - 2px);color:#5d7a96;letter-spacing:.08em;text-transform:uppercase;font-weight:400}
+/* ==================== ONBOARDING ==================== */
+#onboarding{
+position:fixed;top:0;left:0;right:0;bottom:0;z-index:1000;
+background:linear-gradient(180deg,#0a1628 0%,#0f1f3d 50%,#132a4a 100%);
+display:flex;flex-direction:column;align-items:center;justify-content:center;
+padding:40px 24px;text-align:center;
+transition:opacity 0.5s,transform 0.5s;
+}
+#onboarding.hidden{opacity:0;transform:translateY(20px);pointer-events:none}
+#onboarding .logo-icon{font-size:48px;margin-bottom:16px}
+#onboarding h1{font-family:‘DM Serif Display’,serif;font-size:28px;margin-bottom:8px;color:#fff}
+#onboarding .subtitle{color:var(–text-secondary);font-size:15px;margin-bottom:32px;line-height:1.5}
+#onboarding .trigger-label{font-size:13px;color:var(–text-secondary);margin-bottom:16px;text-transform:uppercase;letter-spacing:1px}
+.trigger-grid{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;max-width:340px;margin-bottom:32px}
+.trigger-chip{
+padding:10px 18px;border-radius:100px;
+background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);
+font-size:14px;color:var(–text-secondary);cursor:pointer;
+transition:all 0.2s;user-select:none;
+}
+.trigger-chip.selected{background:rgba(74,158,255,0.15);border-color:rgba(74,158,255,0.4);color:#fff}
+.btn-primary{
+background:var(–accent);color:#fff;border:none;
+padding:14px 48px;border-radius:100px;font-size:16px;font-weight:600;
+font-family:‘DM Sans’,sans-serif;cursor:pointer;
+transition:transform 0.15s,opacity 0.15s;
+width:100%;max-width:300px;
+}
+.btn-primary:active{transform:scale(0.97);opacity:0.9}
 
-/* Alert banner */
-.abanner{position:relative;z-index:2;margin:0 16px 10px;border-radius:16px;padding:14px 16px;display:none;gap:12px;align-items:flex-start}
-.abanner.vis{display:flex}
-.abanner.safe{background:rgba(15,110,86,0.15);border:1px solid rgba(29,158,117,0.3)}
-.abanner.watch{background:rgba(255,209,0,0.08);border:1px solid rgba(255,209,0,0.25)}
-.abanner.warning{background:rgba(192,56,106,0.1);border:1px solid rgba(192,56,106,0.3)}
-.adot{width:10px;height:10px;border-radius:50%;margin-top:3px;flex-shrink:0}
-.abanner.safe .adot{background:#1d9e75;box-shadow:0 0 0 4px rgba(29,158,117,0.15)}
-.abanner.watch .adot{background:#FFD100;box-shadow:0 0 0 4px rgba(255,209,0,0.15)}
-.abanner.warning .adot{background:#C0386A;box-shadow:0 0 0 4px rgba(192,56,106,0.15)}
-.atitle{font-size:calc(var(–fs) - 1px);font-weight:500;margin-bottom:3px}
-.abanner.safe .atitle{color:#5dcaa5}
-.abanner.watch .atitle{color:#FFD100}
-.abanner.warning .atitle{color:#C0386A}
-.adesc{font-size:calc(var(–fs) - 3px);line-height:1.5}
-.abanner.safe .adesc{color:#3d7a62}
-.abanner.watch .adesc{color:#9e8a30}
-.abanner.warning .adesc{color:#8a3050}
+/* ==================== HEADER ==================== */
+.app-header{
+padding:12px 20px 8px;display:flex;align-items:center;justify-content:space-between;
+position:relative;z-index:20;
+}
+.header-left{display:flex;align-items:center;gap:8px}
+.status-dot{width:8px;height:8px;border-radius:50%;background:var(–status-color);flex-shrink:0}
+.status-dot.pulse{animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(29,158,117,0.4)}50%{box-shadow:0 0 0 6px rgba(29,158,117,0)}}
+.header-location{font-size:14px;font-weight:500;color:var(–text-primary)}
+.header-time{font-size:13px;color:var(–text-secondary)}
 
-/* Am I Safe */
-.safe-btn{position:relative;z-index:2;width:calc(100% - 32px);margin:0 16px 12px;background:rgba(29,158,117,0.1);border:1px solid rgba(29,158,117,0.4);border-radius:14px;padding:13px;color:#5dcaa5;font-family:‘DM Sans’,sans-serif;font-size:calc(var(–fs) - 2px);font-weight:500;cursor:pointer;letter-spacing:.02em;transition:all .2s}
-.safe-btn:active{background:rgba(29,158,117,0.2)}
+/* ==================== MAIN CONTENT AREA ==================== */
+.main-scroll{
+flex:1;overflow-y:auto;overflow-x:hidden;
+-webkit-overflow-scrolling:touch;
+overscroll-behavior:none;
+padding-bottom:calc(var(–nav-height) + 20px);
+}
+.main-scroll::-webkit-scrollbar{display:none}
 
-/* Premium banner */
-.pbanner{position:relative;z-index:2;margin:0 16px 12px;padding:16px;background:linear-gradient(135deg,rgba(74,144,200,0.12),rgba(83,74,183,0.12));border:1px solid rgba(74,144,200,0.25);border-radius:14px;text-align:center;display:none}
-.pbanner.vis{display:block}
-.pbanner p{font-size:calc(var(–fs) - 2px);color:#7a9ab4;margin-bottom:6px}
-.pbanner .sc{font-size:calc(var(–fs) - 3px);color:#6aafd4;margin-bottom:10px}
-.pbtn{padding:10px 24px;border-radius:10px;border:none;background:#4a90c8;color:white;font-family:‘DM Sans’,sans-serif;font-size:calc(var(–fs) - 1px);font-weight:500;cursor:pointer}
+/* ==================== WEATHER HERO ==================== */
+.weather-hero{text-align:center;padding:20px 20px 24px}
+.weather-icon{font-size:56px;margin-bottom:4px}
+.weather-temp{font-family:‘DM Serif Display’,serif;font-size:64px;color:#fff;line-height:1}
+.weather-desc{font-size:15px;color:var(–text-secondary);margin-top:4px}
 
-/* Tabs */
-.tabs{position:relative;z-index:2;display:flex;padding:0 16px;gap:4px;margin-bottom:14px}
-.tab{flex:1;padding:7px 4px;border-radius:10px;font-size:calc(var(–fs) - 4px);font-weight:500;text-align:center;cursor:pointer;color:#4a6070;background:transparent;border:none;font-family:‘DM Sans’,sans-serif;letter-spacing:.03em;transition:all .2s}
-.tab.active{background:rgba(74,144,200,0.15);color:#6aafd4}
+/* Alert Banner */
+.alert-banner{
+margin:0 16px 12px;padding:12px 16px;border-radius:14px;
+font-size:13px;font-weight:500;display:none;
+animation:slideDown 0.3s ease;
+}
+.alert-banner.watch-alert{background:rgba(255,209,0,0.12);border:1px solid rgba(255,209,0,0.25);color:#FFD100}
+.alert-banner.warning-alert{background:rgba(192,56,106,0.12);border:1px solid rgba(192,56,106,0.25);color:#C0386A}
+@keyframes slideDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
 
-/* Content */
-.content{position:relative;z-index:2;flex:1;overflow-y:auto;overscroll-behavior:none;padding-bottom:72px}
-.panel{display:none;padding:0 16px 20px}
-.panel.active{display:block}
+/* Am I Safe Button */
+.safe-btn-wrap{padding:0 16px;margin-bottom:20px}
+.safe-btn{
+width:100%;padding:16px;border-radius:16px;
+background:rgba(29,158,117,0.1);border:1px solid rgba(29,158,117,0.25);
+color:var(–calm);font-size:16px;font-weight:600;
+font-family:‘DM Sans’,sans-serif;cursor:pointer;
+display:flex;align-items:center;justify-content:center;gap:8px;
+transition:all 0.2s;
+}
+.safe-btn:active{transform:scale(0.98)}
+.safe-btn .shield{font-size:20px}
 
-/* Cards */
-.dgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
-.dcard{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:12px}
-.dlabel{font-size:calc(var(–fs) - 5px);color:#3a5168;text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px}
-.dval{font-size:var(–fs);color:#8aacca;font-weight:500}
-.dsub{font-size:calc(var(–fs) - 5px);color:#3a5168;margin-top:2px}
+/* ==================== CARDS ==================== */
+.card-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 16px;margin-bottom:16px}
+.card{
+background:var(–card-bg);border:1px solid var(–card-border);
+border-radius:16px;padding:16px;
+transition:background 0.3s,border-color 0.3s;
+}
+.card-label{font-size:12px;color:var(–text-secondary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px}
+.card-value{font-family:‘DM Serif Display’,serif;font-size:24px;color:#fff}
+.card-sub{font-size:12px;color:var(–text-dim);margin-top:2px}
 
-/* Storm bar */
-.sbar-wrap{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:12px;margin-bottom:12px;display:none}
-.sbar-wrap.vis{display:block}
-.sbar-top{display:flex;justify-content:space-between;margin-bottom:6px}
-.sbar-t{font-size:calc(var(–fs) - 4px);color:#5d7a96}
-.sbar-p{font-size:calc(var(–fs) - 4px);color:#4a90c8}
-.sbar{height:6px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden}
-.sfill{height:100%;border-radius:3px;background:linear-gradient(90deg,#1d9e75,#4a90c8);transition:width 1s}
+/* ==================== SECTION HEADERS ==================== */
+.section-header{
+padding:24px 16px 12px;
+font-family:‘DM Serif Display’,serif;font-size:20px;color:#fff;
+}
 
-/* Companion */
-.pulse-ring{width:70px;height:70px;border-radius:50%;background:rgba(74,144,200,0.08);border:1px solid rgba(74,144,200,0.2);display:flex;align-items:center;justify-content:center;margin:0 auto 12px}
-.pulse-in{width:44px;height:44px;border-radius:50%;background:rgba(74,144,200,0.12);border:1px solid rgba(74,144,200,0.3);display:flex;align-items:center;justify-content:center;font-size:18px}
-.cmsg{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:14px;margin-bottom:10px}
-.ctxt{font-size:calc(var(–fs) - 2px);color:#7a9ab4;line-height:1.65;font-family:‘DM Serif Display’,serif;font-style:italic}
-.plab{display:flex;justify-content:space-between;margin-bottom:5px;font-size:calc(var(–fs) - 5px);color:#3a5168;text-transform:uppercase;letter-spacing:.07em}
-.pbar{height:4px;background:rgba(255,255,255,0.07);border-radius:2px;overflow:hidden;margin-bottom:16px}
-.pfill{height:100%;border-radius:2px;background:#4a90c8;width:0%;transition:width 1s}
+/* ==================== MORNING BRIEFING ==================== */
+.briefing-card{
+margin:0 16px 16px;padding:16px;border-radius:16px;
+background:var(–card-bg);border:1px solid var(–card-border);
+cursor:pointer;transition:background 0.2s;
+}
+.briefing-card:active{background:rgba(255,255,255,0.09)}
+.briefing-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.briefing-header span:first-child{font-size:18px}
+.briefing-header span:last-child{font-size:14px;font-weight:600;color:#fff}
+.briefing-text{font-size:13px;color:var(–text-secondary);line-height:1.5}
 
-/* Quick actions (Companion only) */
-.qgrid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
-.qcard{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:11px;padding:12px;cursor:pointer;transition:all .2s;text-align:center}
-.qcard:active{background:rgba(255,255,255,0.07)}
-.qicon{font-size:18px;margin-bottom:4px}
-.qname{font-size:calc(var(–fs) - 5px);color:#4a6070;text-transform:uppercase;letter-spacing:.06em}
+/* ==================== COMPANION TAB ==================== */
+.companion-section{padding:0 16px}
+.companion-message{
+background:var(–card-bg);border:1px solid var(–card-border);
+border-radius:16px;padding:20px;margin-bottom:16px;
+font-size:15px;line-height:1.65;color:var(–text-primary);
+font-style:italic;
+}
+.companion-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.companion-btn{
+padding:14px;border-radius:14px;
+background:var(–card-bg);border:1px solid var(–card-border);
+color:var(–text-primary);font-size:13px;font-weight:500;
+font-family:‘DM Sans’,sans-serif;cursor:pointer;
+display:flex;flex-direction:column;align-items:center;gap:6px;
+transition:all 0.2s;
+}
+.companion-btn:active{background:rgba(255,255,255,0.1)}
+.companion-btn .icon{font-size:22px}
 
-/* Toolkit rows */
-.trow{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:12px;margin-bottom:8px;cursor:pointer;transition:all .2s}
-.trow:active{background:rgba(255,255,255,0.06)}
-.ticon{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
-.tinfo{flex:1}
-.tname{font-size:calc(var(–fs) - 2px);color:#8aacca;font-weight:500;margin-bottom:1px}
-.tdesc{font-size:calc(var(–fs) - 4px);color:#3a5168}
-.tarrow{color:#2a3f52;font-size:14px}
-.fcard{background:rgba(83,74,183,0.08);border:1px solid rgba(83,74,183,0.2);border-radius:12px;padding:12px;margin-top:8px}
-.flabel{font-size:calc(var(–fs) - 5px);color:#534ab7;text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px}
-.ftxt{font-size:calc(var(–fs) - 3px);color:#6b62b8;line-height:1.55}
+/* Storm Progress */
+.storm-progress-card{
+background:var(–card-bg);border:1px solid var(–card-border);
+border-radius:16px;padding:16px;margin-bottom:16px;
+}
+.progress-label{font-size:12px;color:var(–text-secondary);margin-bottom:8px;display:flex;justify-content:space-between}
+.progress-bar-bg{height:6px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden}
+.progress-bar-fill{height:100%;border-radius:3px;background:var(–status-color);transition:width 1s ease;width:0%}
+.progress-times{display:flex;justify-content:space-between;margin-top:8px;font-size:11px;color:var(–text-dim)}
 
-/* Briefing */
-.briefing{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:14px;margin-bottom:12px}
-.br-title{font-size:calc(var(–fs) - 3px);color:#5d7a96;margin-bottom:6px;display:flex;align-items:center;gap:6px}
-.br-text{font-size:calc(var(–fs) - 2px);color:#7a9ab4;line-height:1.6}
+/* Storm counter pill */
+.storm-pill{
+display:inline-block;padding:6px 14px;border-radius:100px;
+background:rgba(74,158,255,0.12);border:1px solid rgba(74,158,255,0.25);
+font-size:12px;color:var(–accent);margin-bottom:12px;
+}
 
-/* Bottom nav */
-.bnav{position:fixed;bottom:0;left:0;right:0;display:flex;padding:10px 12px calc(env(safe-area-inset-bottom,4px) + 4px);border-top:1px solid rgba(255,255,255,0.06);background:#0d1117;z-index:50;max-width:430px;margin:0 auto}
-.ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px;border-radius:10px;background:none;border:none;font-family:‘DM Sans’,sans-serif}
-.nicon{font-size:16px}
-.nlabel{font-size:calc(var(–fs) - 5px);color:#3a5168;letter-spacing:.04em}
-.ni.active .nlabel{color:#5dcaa5}
+/* ==================== TOOLKIT TAB ==================== */
+.toolkit-list{padding:0 16px}
+.toolkit-item{
+display:flex;align-items:center;gap:14px;
+padding:16px;margin-bottom:10px;border-radius:16px;
+background:var(–card-bg);border:1px solid var(–card-border);
+cursor:pointer;transition:background 0.2s;
+}
+.toolkit-item:active{background:rgba(255,255,255,0.09)}
+.toolkit-icon{font-size:24px;width:40px;text-align:center;flex-shrink:0}
+.toolkit-info{flex:1}
+.toolkit-title{font-size:15px;font-weight:600;color:#fff;margin-bottom:2px}
+.toolkit-desc{font-size:12px;color:var(–text-secondary)}
+.toolkit-arrow{color:var(–text-dim);font-size:16px}
 
-/* Sub-screens */
-.sub{position:fixed;inset:0;background:#0d1117;z-index:100;display:none;flex-direction:column;overflow-y:auto}
-.sub.vis{display:flex}
-.sub-h{display:flex;align-items:center;gap:12px;padding:16px;font-size:calc(var(–fs) + 2px);font-weight:500;color:#e8f0f8}
-.sub-h .bk{cursor:pointer;font-size:20px;color:#5d7a96}
-.sub-c{padding:0 16px 32px;flex:1}
+/* Did you know card */
+.fact-card{
+margin:16px 16px 0;padding:16px;border-radius:16px;
+background:rgba(74,158,255,0.06);border:1px solid rgba(74,158,255,0.12);
+}
+.fact-label{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(–accent);margin-bottom:8px}
+.fact-text{font-size:13px;color:var(–text-secondary);line-height:1.5}
 
-/* Breathing */
-.bcircle{width:140px;height:140px;border-radius:50%;border:2px solid #4a90c8;display:flex;align-items:center;justify-content:center;margin:24px auto;font-size:calc(var(–fs) + 2px);color:#4a90c8;transition:all 4s ease-in-out}
-.bcircle.inhale{transform:scale(1.3);border-color:#1d9e75;color:#1d9e75}
-.bcircle.hold{border-color:#EF9F27;color:#EF9F27}
-.bcircle.exhale{transform:scale(1);border-color:#4a90c8;color:#4a90c8}
-.bbtn{width:100%;padding:14px;border-radius:14px;border:none;background:#4a90c8;color:white;font-family:‘DM Sans’,sans-serif;font-size:var(–fs);font-weight:500;cursor:pointer;margin-top:16px}
+/* ==================== PROFILE TAB ==================== */
+.profile-section{padding:0 16px}
+.profile-card{
+background:var(–card-bg);border:1px solid var(–card-border);
+border-radius:16px;padding:16px;margin-bottom:12px;
+}
+.profile-card h3{font-size:14px;font-weight:600;color:#fff;margin-bottom:12px}
+.font-toggle{display:flex;gap:0;border-radius:10px;overflow:hidden;border:1px solid var(–card-border)}
+.font-opt{
+flex:1;padding:10px;text-align:center;font-size:13px;
+background:transparent;border:none;color:var(–text-secondary);
+font-family:‘DM Sans’,sans-serif;cursor:pointer;transition:all 0.2s;
+}
+.font-opt.active{background:rgba(74,158,255,0.15);color:#fff}
+.trigger-list-profile{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.trigger-tag{padding:6px 14px;border-radius:100px;background:rgba(74,158,255,0.1);border:1px solid rgba(74,158,255,0.2);font-size:13px;color:var(–accent)}
+.alert-edu{font-size:13px;color:var(–text-secondary);line-height:1.7;margin-top:8px}
+.alert-edu strong{color:#fff;font-weight:600}
+.stat-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:8px}
+.stat-box{text-align:center;padding:12px 8px;border-radius:12px;background:rgba(255,255,255,0.03)}
+.stat-num{font-family:‘DM Serif Display’,serif;font-size:22px;color:#fff}
+.stat-label{font-size:11px;color:var(–text-secondary);margin-top:2px}
+.journal-entry{padding:12px 0;border-bottom:1px solid var(–card-border)}
+.journal-entry:last-child{border-bottom:none}
+.journal-date{font-size:12px;color:var(–text-dim);margin-bottom:4px}
+.journal-mood{font-size:14px;margin-bottom:4px}
+.journal-note{font-size:13px;color:var(–text-secondary);line-height:1.4}
+
+/* Premium unlock section in profile */
+.premium-section{margin-top:8px}
+.unlock-input-row{display:flex;gap:8px;margin-top:8px}
+.unlock-input{
+flex:1;padding:10px 14px;border-radius:10px;
+background:rgba(255,255,255,0.06);border:1px solid var(–card-border);
+color:#fff;font-size:14px;font-family:‘DM Sans’,sans-serif;
+outline:none;
+}
+.unlock-input:focus{border-color:rgba(74,158,255,0.4)}
+.unlock-input::placeholder{color:var(–text-dim)}
+.btn-sm{
+padding:10px 18px;border-radius:10px;background:var(–accent);
+border:none;color:#fff;font-size:13px;font-weight:600;
+font-family:‘DM Sans’,sans-serif;cursor:pointer;
+}
+.premium-badge{
+display:inline-flex;align-items:center;gap:6px;
+padding:6px 14px;border-radius:100px;
+background:rgba(29,158,117,0.12);border:1px solid rgba(29,158,117,0.25);
+font-size:13px;color:var(–calm);margin-top:8px;
+}
+
+/* ==================== SUB-SCREENS (overlays) ==================== */
+.sub-screen{
+position:fixed;top:0;left:0;right:0;bottom:0;z-index:500;
+background:#0a1628;
+transform:translateX(100%);transition:transform 0.3s ease;
+overflow-y:auto;-webkit-overflow-scrolling:touch;
+padding:0 0 40px;
+}
+.sub-screen.open{transform:translateX(0)}
+.sub-header{
+position:sticky;top:0;z-index:10;
+padding:16px 20px;display:flex;align-items:center;gap:12px;
+background:rgba(10,22,40,0.95);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+}
+.back-btn{
+background:none;border:none;color:var(–text-primary);font-size:22px;
+cursor:pointer;padding:4px;
+}
+.sub-title{font-family:‘DM Serif Display’,serif;font-size:18px;color:#fff}
+.sub-content{padding:20px 16px}
+
+/* Breathing timer */
+.breath-circle-wrap{display:flex;justify-content:center;margin:30px 0}
+.breath-circle{
+width:180px;height:180px;border-radius:50%;
+border:2px solid rgba(74,158,255,0.3);
+display:flex;align-items:center;justify-content:center;flex-direction:column;
+transition:transform 4s ease-in-out,border-color 0.3s;
+}
+.breath-circle.inhale{transform:scale(1.25);border-color:rgba(74,158,255,0.6)}
+.breath-circle.exhale{transform:scale(1);border-color:rgba(74,158,255,0.3)}
+.breath-phase{font-size:18px;font-weight:600;color:#fff}
+.breath-count{font-family:‘DM Serif Display’,serif;font-size:36px;color:var(–accent);margin-top:4px}
+.breath-start-btn{
+display:block;margin:20px auto 0;padding:14px 48px;border-radius:100px;
+background:var(–accent);border:none;color:#fff;font-size:16px;font-weight:600;
+font-family:‘DM Sans’,sans-serif;cursor:pointer;
+}
+.breath-instruction{text-align:center;font-size:13px;color:var(–text-secondary);line-height:1.6;margin-top:20px;padding:0 10px}
 
 /* Grounding */
-.gstep{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:16px;margin-bottom:8px}
-.gnum{font-size:24px;font-weight:600;color:#4a90c8;margin-bottom:4px}
-.gtxt{font-size:calc(var(–fs) - 1px);color:#7a9ab4}
-.gstep input{width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:8px 12px;color:#e8f0f8;font-family:‘DM Sans’,sans-serif;font-size:calc(var(–fs) - 1px);margin-top:8px;outline:none}
-.gstep input:focus{border-color:rgba(74,144,200,0.4)}
+.ground-step{margin-bottom:20px}
+.ground-num{
+display:inline-flex;align-items:center;justify-content:center;
+width:32px;height:32px;border-radius:50%;
+background:rgba(74,158,255,0.12);color:var(–accent);
+font-weight:700;font-size:15px;margin-right:10px;
+}
+.ground-label{font-size:15px;color:#fff;font-weight:500}
+.ground-input{
+width:100%;margin-top:8px;padding:12px 14px;border-radius:12px;
+background:rgba(255,255,255,0.06);border:1px solid var(–card-border);
+color:#fff;font-size:14px;font-family:‘DM Sans’,sans-serif;outline:none;
+}
+.ground-input:focus{border-color:rgba(74,158,255,0.4)}
+.ground-input::placeholder{color:var(–text-dim)}
 
 /* Checklist */
-.chk{display:flex;align-items:center;gap:12px;padding:12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:10px;margin-bottom:6px;cursor:pointer}
-.cbox{width:20px;height:20px;border-radius:6px;border:2px solid #3a5168;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s}
-.chk.done .cbox{background:#1d9e75;border-color:#1d9e75}
-.chk.done .cbox::after{content:‘✓’;color:white;font-size:12px}
-.chtxt{font-size:calc(var(–fs) - 2px);color:#7a9ab4;line-height:1.4}
-.chk.done .chtxt{text-decoration:line-through;color:#3a5168}
+.check-item{
+display:flex;align-items:center;gap:12px;
+padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.05);
+}
+.check-box{
+width:22px;height:22px;border-radius:6px;
+border:2px solid rgba(255,255,255,0.2);background:transparent;
+cursor:pointer;display:flex;align-items:center;justify-content:center;
+flex-shrink:0;transition:all 0.2s;color:transparent;font-size:14px;
+}
+.check-box.checked{background:var(–calm);border-color:var(–calm);color:#fff}
+.check-text{font-size:14px;color:var(–text-primary)}
+
+/* Storm Facts */
+.fact-item{
+padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.05);
+}
+.fact-item:last-child{border-bottom:none}
+.fact-item-icon{font-size:18px;margin-bottom:6px}
+.fact-item-text{font-size:14px;color:var(–text-secondary);line-height:1.5}
 
 /* Journal */
-.jmood{display:flex;justify-content:center;gap:12px;margin:16px 0}
-.mbtn{font-size:28px;cursor:pointer;opacity:.4;transition:all .2s;background:none;border:none}
-.mbtn.sel{opacity:1;transform:scale(1.2)}
-.jta{width:100%;min-height:100px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:12px;color:#e8f0f8;font-family:‘DM Sans’,sans-serif;font-size:calc(var(–fs) - 1px);resize:vertical;outline:none}
-.jta:focus{border-color:rgba(74,144,200,0.4)}
-.jsave{width:100%;padding:14px;border-radius:14px;border:none;background:#1d9e75;color:white;font-family:‘DM Sans’,sans-serif;font-size:var(–fs);font-weight:500;cursor:pointer;margin-top:12px}
+.mood-picker{display:flex;justify-content:center;gap:16px;margin:20px 0}
+.mood-opt{
+font-size:32px;cursor:pointer;opacity:0.4;
+transition:opacity 0.2s,transform 0.2s;
+}
+.mood-opt.selected{opacity:1;transform:scale(1.2)}
+.journal-textarea{
+width:100%;min-height:120px;padding:14px;border-radius:14px;
+background:rgba(255,255,255,0.06);border:1px solid var(–card-border);
+color:#fff;font-size:14px;font-family:‘DM Sans’,sans-serif;
+outline:none;resize:vertical;
+}
+.journal-textarea:focus{border-color:rgba(74,158,255,0.4)}
+.journal-textarea::placeholder{color:var(–text-dim)}
+.journal-save-btn{
+display:block;width:100%;margin-top:16px;padding:14px;border-radius:14px;
+background:var(–accent);border:none;color:#fff;font-size:15px;font-weight:600;
+font-family:‘DM Sans’,sans-serif;cursor:pointer;
+}
 
-/* Profile */
-.srow{display:flex;justify-content:space-between;align-items:center;padding:14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:12px;margin-bottom:8px}
-.slabel{font-size:calc(var(–fs) - 1px);color:#7a9ab4}
-.ftog{display:flex;gap:4px}
-.fopt{padding:6px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.07);background:rgba(255,255,255,0.04);color:#5d7a96;font-size:calc(var(–fs) - 3px);cursor:pointer;font-family:‘DM Sans’,sans-serif;transition:all .2s}
-.fopt.on{border-color:#4a90c8;color:#6aafd4;background:rgba(74,144,200,0.15)}
-.psec{font-size:calc(var(–fs) - 1px);color:#7a9ab4;margin:16px 0 10px;font-weight:500}
-.ttag{display:inline-block;padding:5px 12px;border-radius:16px;background:rgba(15,110,86,0.15);border:1px solid rgba(29,158,117,0.3);color:#5dcaa5;font-size:calc(var(–fs) - 3px);margin:0 4px 6px 0}
-.icard{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:14px;margin-bottom:8px}
-.icard p{font-size:calc(var(–fs) - 2px);color:#5d7a96;line-height:1.65}
-.icard strong{color:#7a9ab4}
-.sgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px}
-.scard{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:12px;text-align:center}
-.snum{font-size:22px;font-weight:600;color:#e8f0f8}
-.slab{font-size:calc(var(–fs) - 5px);color:#3a5168;text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
-.jentry{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:12px;margin-bottom:8px}
-.je-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
-.je-date{font-size:calc(var(–fs) - 4px);color:#3a5168}
-.je-text{font-size:calc(var(–fs) - 2px);color:#5d7a96}
-.vlabel{text-align:center;padding:16px 8px;font-size:calc(var(–fs) - 4px);color:#3a5168;line-height:1.5}
+/* ==================== AM I SAFE MODAL ==================== */
+.modal-overlay{
+position:fixed;top:0;left:0;right:0;bottom:0;z-index:800;
+background:rgba(0,0,0,0.6);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+display:none;align-items:flex-end;justify-content:center;
+padding:16px;
+}
+.modal-overlay.open{display:flex}
+.modal-sheet{
+background:#111d2e;border:1px solid var(–card-border);
+border-radius:20px;width:100%;max-width:420px;
+padding:24px 20px 28px;max-height:85vh;overflow-y:auto;
+animation:sheetUp 0.3s ease;
+}
+@keyframes sheetUp{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-shield{text-align:center;font-size:36px;margin-bottom:12px}
+.modal-title{font-family:‘DM Serif Display’,serif;font-size:20px;color:#fff;text-align:center;margin-bottom:12px}
+.modal-text{font-size:14px;color:var(–text-secondary);line-height:1.65;text-align:center;margin-bottom:16px}
+.modal-disclaimer{font-size:11px;color:var(–text-dim);text-align:center;line-height:1.5;margin-bottom:16px}
+.modal-close-btn{
+display:block;width:100%;padding:14px;border-radius:14px;
+background:rgba(255,255,255,0.08);border:1px solid var(–card-border);
+color:#fff;font-size:15px;font-weight:500;
+font-family:‘DM Sans’,sans-serif;cursor:pointer;
+}
 
-/* Modal */
-.moverlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;display:none;align-items:center;justify-content:center;padding:24px;backdrop-filter:blur(4px)}
-.moverlay.vis{display:flex}
-.modal{background:#0d1117;border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:24px;max-width:340px;width:100%;text-align:center}
-.m-icon{font-size:36px;margin-bottom:12px}
-.m-title{font-size:calc(var(–fs) + 4px);font-weight:600;margin-bottom:8px}
-.m-desc{font-size:calc(var(–fs) - 1px);color:#7a9ab4;line-height:1.6;margin-bottom:16px}
-.m-disc{font-size:calc(var(–fs) - 4px);color:#3a5168;line-height:1.5;margin-bottom:16px;padding:10px;background:rgba(255,255,255,0.04);border-radius:8px}
-.m-close{width:100%;padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,0.07);background:rgba(255,255,255,0.04);color:#7a9ab4;font-family:‘DM Sans’,sans-serif;font-size:calc(var(–fs) - 1px);cursor:pointer}
+/* ==================== PREMIUM PAYWALL MODAL ==================== */
+.paywall-sheet{
+background:#111d2e;border:1px solid var(–card-border);
+border-radius:20px;width:100%;max-width:420px;
+padding:24px 20px 28px;text-align:center;
+animation:sheetUp 0.3s ease;
+}
+.paywall-sheet h2{font-family:‘DM Serif Display’,serif;font-size:22px;color:#fff;margin-bottom:8px}
+.paywall-sheet .sub{font-size:14px;color:var(–text-secondary);margin-bottom:20px;line-height:1.5}
+.paywall-features{text-align:left;margin-bottom:20px}
+.paywall-feat{display:flex;align-items:center;gap:10px;padding:8px 0;font-size:14px;color:var(–text-primary)}
+.paywall-feat .check{color:var(–calm)}
+.paywall-price{font-family:‘DM Serif Display’,serif;font-size:28px;color:#fff;margin-bottom:4px}
+.paywall-price-sub{font-size:12px;color:var(–text-secondary);margin-bottom:16px}
+.paywall-cta{
+display:block;width:100%;padding:14px;border-radius:14px;
+background:var(–accent);border:none;color:#fff;font-size:15px;font-weight:600;
+font-family:‘DM Sans’,sans-serif;cursor:pointer;margin-bottom:10px;
+}
+.paywall-skip{
+display:block;width:100%;padding:12px;border-radius:14px;
+background:transparent;border:none;color:var(–text-secondary);font-size:14px;
+font-family:‘DM Sans’,sans-serif;cursor:pointer;
+}
+.paywall-unlock-row{margin-top:16px;text-align:left}
+.paywall-unlock-label{font-size:12px;color:var(–text-secondary);margin-bottom:6px}
 
-/* STORM PILL */
-.storm-pill{position:relative;z-index:2;margin:0 auto 10px;padding:6px 16px;border-radius:20px;background:rgba(74,144,200,0.15);border:1px solid rgba(74,144,200,0.25);color:#6aafd4;font-size:calc(var(–fs) - 4px);text-align:center;display:none;width:fit-content}
-.storm-pill.vis{display:block}
-/* CELEBRATION */
-.cele-ov{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:300;display:none;flex-direction:column;align-items:center;justify-content:center;padding:24px;backdrop-filter:blur(6px)}
-.cele-ov.vis{display:flex}
-.cele{background:#0d1117;border:1px solid rgba(255,255,255,0.1);border-radius:24px;padding:28px;max-width:340px;width:100%;text-align:center}
-.cele-icon{font-size:2.8em;margin-bottom:8px}
-.cele h2{font-family:‘DM Serif Display’,serif;font-size:1.3em;margin-bottom:12px;line-height:1.3}
-.cele-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:16px 0}
-.cele-stat{background:rgba(255,255,255,0.04);border-radius:10px;padding:10px}
-.cele-sn{font-size:1.3em;font-weight:600;color:#e8f0f8}
-.cele-sl{font-size:calc(var(–fs) - 5px);color:#3a5168;text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
-.cele-div{border:none;border-top:1px solid rgba(255,255,255,0.07);margin:16px 0}
-.cele-pitch{font-size:calc(var(–fs) - 2px);color:#7a9ab4;line-height:1.6;margin-bottom:16px}
-.cele-feats{text-align:left;margin-bottom:16px}
-.cele-ft{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:calc(var(–fs) - 3px);color:#7a9ab4}
-.cele-ft .star{color:#4a90c8}
-.cele-btn1{width:100%;padding:14px;border-radius:14px;border:none;background:#4a90c8;color:white;font-family:‘DM Sans’,sans-serif;font-size:var(–fs);font-weight:500;cursor:pointer;margin-bottom:8px}
-.cele-btn2{width:100%;padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,0.07);background:transparent;color:#5d7a96;font-family:‘DM Sans’,sans-serif;font-size:calc(var(–fs) - 2px);cursor:pointer}
-.lock-ov{position:relative}
-.lock-ov::after{content:’\1F512 Premium’;position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(13,17,23,0.75);border-radius:12px;font-size:calc(var(–fs) - 3px);color:#6aafd4;cursor:pointer}
+/* ==================== BOTTOM NAV ==================== */
+.bottom-nav{
+position:fixed;bottom:0;left:0;right:0;z-index:100;
+background:rgba(10,22,40,0.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+border-top:1px solid rgba(255,255,255,0.06);
+display:flex;height:var(–nav-height);
+padding-bottom:env(safe-area-inset-bottom,0);
+}
+.nav-tab{
+flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+gap:3px;background:none;border:none;color:var(–text-dim);
+font-size:10px;font-family:‘DM Sans’,sans-serif;cursor:pointer;
+transition:color 0.2s;padding:8px 0;
+}
+.nav-tab.active{color:var(–accent)}
+.nav-tab .nav-icon{font-size:22px}
 
+/* ==================== UTILITIES ==================== */
+.hidden{display:none!important}
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+/* Version footer */
+.version-footer{
+text-align:center;padding:24px 16px 8px;
+font-size:11px;color:var(–text-dim);line-height:1.5;
+}
 </style>
+
 </head>
-<body>
-<div class="app">
+<body class="font-md">
 
-<!-- SKY -->
+<!-- SKY BACKGROUND -->
 
-<div class="sky-bg" id="sky-bg">
-<div class="star" style="width:2px;height:2px;top:15%;left:20%"></div>
-<div class="star" style="width:1px;height:1px;top:25%;left:40%;animation-delay:.5s"></div>
-<div class="star" style="width:2px;height:2px;top:10%;left:65%;animation-delay:1s"></div>
-<div class="star" style="width:1px;height:1px;top:30%;left:80%;animation-delay:1.5s"></div>
-<div class="star" style="width:2px;height:2px;top:18%;left:50%;animation-delay:2s"></div>
-<div class="star" style="width:1px;height:1px;top:8%;left:35%;animation-delay:.8s"></div>
-<div class="star" style="width:2px;height:2px;top:22%;left:75%;animation-delay:1.2s"></div>
-<div class="cloud-layer"></div>
-<div class="lightning-flash" id="lightning">⚡</div>
-</div>
+<div id="sky-bg" class="calm"></div>
+<div class="stars" id="stars"></div>
+<div class="lightning" id="lightning"></div>
 
 <!-- ONBOARDING -->
 
-<div class="onboarding" id="onboarding">
-<div class="ob-icon">🌤</div>
-<h1 class="ob-title">Welcome to Skye</h1>
-<h2 class="ob-sub">Calm Through Every Storm</h2>
-<p class="ob-desc">Tell Skye what scares you most during storms. This helps every message speak to your experience.</p>
-<div class="ob-chips" id="ob-chips">
-<div class="chip" data-t="tornadoes">Tornadoes</div>
-<div class="chip" data-t="lightning">Lightning</div>
-<div class="chip" data-t="thunder">Loud thunder</div>
-<div class="chip" data-t="wind">Strong wind</div>
-<div class="chip" data-t="power">Power outages</div>
-<div class="chip" data-t="flooding">Flooding</div>
-<div class="chip" data-t="hail">Hail</div>
-<div class="chip" data-t="alone">Being alone</div>
-</div>
-<button class="ob-btn" id="ob-done" disabled>Continue</button>
-</div>
-
-<!-- PREMIUM EXPLAINER (after onboarding) -->
-
-<div class="premium-explainer" id="pe-screen">
-<div class="pe-icon">⛈</div>
-<div class="pe-title">Your First 3 Storms Are On Us</div>
-<div class="pe-sub">Full premium access — no card required</div>
-<div class="pe-grid">
-<div class="pe-row pe-header"><div class="pe-feature">Feature</div><div class="pe-free">Free</div><div class="pe-prem">Premium</div></div>
-<div class="pe-row"><div class="pe-feature">Am I Safe? button</div><div class="pe-free">✓</div><div class="pe-prem">✓</div></div>
-<div class="pe-row"><div class="pe-feature">Calm Forecast</div><div class="pe-free">✓</div><div class="pe-prem">✓</div></div>
-<div class="pe-row"><div class="pe-feature">Fear Profile</div><div class="pe-free">✓</div><div class="pe-prem">✓</div></div>
-<div class="pe-row"><div class="pe-feature">Breathing & Grounding</div><div class="pe-free">✓</div><div class="pe-prem">✓</div></div>
-<div class="pe-row"><div class="pe-feature">Preparedness Checklist</div><div class="pe-free">✓</div><div class="pe-prem">✓</div></div>
-<div class="pe-row"><div class="pe-feature">Storm Facts</div><div class="pe-free">✓</div><div class="pe-prem">✓</div></div>
-<div class="pe-row"><div class="pe-feature">Live Storm Companion</div><div class="pe-free">—</div><div class="pe-prem">✓</div></div>
-<div class="pe-row"><div class="pe-feature">Storm Progress Bar</div><div class="pe-free">—</div><div class="pe-prem">✓</div></div>
-<div class="pe-row"><div class="pe-feature">Advanced Journaling</div><div class="pe-free">—</div><div class="pe-prem">✓</div></div>
-<div class="pe-row"><div class="pe-feature">Sound Library</div><div class="pe-free">—</div><div class="pe-prem">✓</div></div>
-<div class="pe-row"><div class="pe-feature">Morning Briefing+</div><div class="pe-free">—</div><div class="pe-prem">✓</div></div>
-<div class="pe-row"><div class="pe-feature">Season Stats</div><div class="pe-free">—</div><div class="pe-prem">✓</div></div>
-</div>
-<div class="pe-note">Core safety features are free forever. Anxiety doesn't check your bank account.</div>
-<button class="ob-btn" onclick="closePE()">Got it — let's go</button>
+<div id="onboarding">
+  <div class="logo-icon">⚡</div>
+  <h1>Welcome to Skye</h1>
+  <p class="subtitle">Calm Through Every Storm</p>
+  <p class="trigger-label">What scares you most during storms?</p>
+  <div class="trigger-grid" id="onboard-triggers">
+    <div class="trigger-chip" data-trigger="tornadoes">🌪 Tornadoes</div>
+    <div class="trigger-chip" data-trigger="lightning">⚡ Lightning</div>
+    <div class="trigger-chip" data-trigger="thunder">🔊 Loud thunder</div>
+    <div class="trigger-chip" data-trigger="wind">💨 Strong wind</div>
+    <div class="trigger-chip" data-trigger="power">🔌 Power outages</div>
+    <div class="trigger-chip" data-trigger="flooding">🌊 Flooding</div>
+    <div class="trigger-chip" data-trigger="hail">🧊 Hail</div>
+    <div class="trigger-chip" data-trigger="alone">🏠 Being alone</div>
+  </div>
+  <button class="btn-primary" id="onboard-continue">Continue</button>
 </div>
 
-<!-- TOP BAR -->
+<!-- APP -->
 
-<div class="top-bar"><div class="loc-pill"><div class="s-dot" id="s-dot"></div><span id="loc">Finding location...</span></div><span class="t-disp" id="clock">--:--</span></div>
+<div id="app">
+  <!-- HEADER -->
+  <div class="app-header">
+    <div class="header-left">
+      <div class="status-dot pulse" id="statusDot"></div>
+      <span class="header-location" id="headerLocation">Finding location...</span>
+    </div>
+    <span class="header-time" id="headerTime">--:--</span>
+  </div>
 
-<!-- HERO -->
+  <!-- ALERT BANNER -->
 
-<div class="hero"><div class="h-icon" id="h-icon">🌤</div><div class="h-temp" id="h-temp">--°</div><div class="h-cond" id="h-cond">Loading forecast...</div></div>
+  <div class="alert-banner" id="alertBanner"></div>
 
-<!-- ALERT -->
+  <!-- MAIN SCROLLABLE AREA -->
 
-<div class="abanner" id="ab"><div class="adot"></div><div><div class="atitle" id="at"></div><div class="adesc" id="ad"></div></div></div>
+  <div class="main-scroll">
 
-<!-- SAFE BTN -->
+```
+<!-- TAB: NOW -->
+<div class="tab-content active" id="tab-now">
+  <div class="weather-hero">
+    <div class="weather-icon" id="weatherIcon">🌤</div>
+    <div class="weather-temp" id="weatherTemp">--°</div>
+    <div class="weather-desc" id="weatherDesc">Loading forecast...</div>
+  </div>
 
-<button class="safe-btn" onclick="checkSafe()">Am I Safe?</button>
+  <div class="safe-btn-wrap">
+    <button class="safe-btn" id="safeBtn">
+      <span class="shield">🛡</span> Am I Safe?
+    </button>
+  </div>
 
-<!-- PREMIUM BANNER -->
+  <div class="card-row">
+    <div class="card">
+      <div class="card-label">Conditions</div>
+      <div class="card-value" id="cardConditions">--</div>
+      <div class="card-sub" id="cardCondSub">Loading</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Wind</div>
+      <div class="card-value" id="cardWind">--</div>
+      <div class="card-sub" id="cardWindSub">Loading</div>
+    </div>
+  </div>
+  <div class="card-row">
+    <div class="card">
+      <div class="card-label">Temperature</div>
+      <div class="card-value" id="cardTemp">--</div>
+      <div class="card-sub" id="cardTempSub">Loading</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Active Alerts</div>
+      <div class="card-value" id="cardAlerts">0</div>
+      <div class="card-sub" id="cardAlertsSub">None</div>
+    </div>
+  </div>
 
-<div class="pbanner" id="pb"><p>You've used your 3 free premium storms.</p><div class="sc">Unlock Live Storm Companion, storm progress bar, advanced journaling, and personalized briefings.</div><button class="pbtn" onclick="window.open('https://buymeacoffee.com/skye.ctes/membership','_blank')">Get Skye Premium — $5/mo</button></div>
-
-<!-- TABS -->
-
-<div class="tabs"><button class="tab active" onclick="stab('now',this)">Forecast</button><button class="tab" onclick="stab('comp',this)">Companion</button><button class="tab" onclick="stab('tk',this)">Toolkit</button></div>
-
-<!-- CONTENT -->
-
-<div class="content">
-
-<!-- FORECAST -->
-
-<div class="panel active" id="tab-now">
-<div class="briefing"><div class="br-title">☀️ Morning Briefing</div><div class="br-text" id="br-text">Skye is gathering weather data for your location.</div></div>
-<div class="dgrid">
-<div class="dcard"><div class="dlabel">Conditions</div><div class="dval" id="d-cond">--</div><div class="dsub" id="d-conds">Loading</div></div>
-<div class="dcard"><div class="dlabel">Wind</div><div class="dval" id="d-wind">--</div><div class="dsub" id="d-winds">Loading</div></div>
-<div class="dcard"><div class="dlabel">Humidity</div><div class="dval" id="d-hum">--</div><div class="dsub" id="d-hums"></div></div>
-<div class="dcard"><div class="dlabel">Active Alerts</div><div class="dval" id="d-alert">0</div><div class="dsub" id="d-alerts">None</div></div>
-</div>
-<div class="sbar-wrap" id="sbar"><div class="sbar-top"><span class="sbar-t">Storm passing your area</span><span class="sbar-p" id="sbar-p">0%</span></div><div class="sbar"><div class="sfill" id="sfill" style="width:0%"></div></div></div>
-</div>
-
-<!-- COMPANION (in-the-moment support, no duplication) -->
-
-<div class="panel" id="tab-comp">
-<div class="pulse-ring"><div class="pulse-in" id="c-icon">🌧</div></div>
-<div class="cmsg"><div class="ctxt" id="c-text">"Checking in with your local conditions. One moment..."</div></div>
-<div class="plab"><span>Storm started</span><span>All clear</span></div>
-<div class="pbar"><div class="pfill" id="pfill"></div></div>
-<div class="qgrid">
-<div class="qcard" onclick="openSub('breathing')"><div class="qicon">🌬</div><div class="qname">Breathe</div></div>
-<div class="qcard" onclick="openSub('grounding')"><div class="qicon">🌿</div><div class="qname">Ground me</div></div>
-<div class="qcard" onclick="openSub('facts')"><div class="qicon">⚡</div><div class="qname">Explain that</div></div>
-<div class="qcard" onclick="openSub('journal')"><div class="qicon">📝</div><div class="qname">How I feel</div></div>
-</div>
-</div>
-
-<!-- TOOLKIT (full library, no overlap) -->
-
-<div class="panel" id="tab-tk">
-<div class="trow" onclick="openSub('breathing')"><div class="ticon" style="background:rgba(29,158,117,0.15)">🌬</div><div class="tinfo"><div class="tname">Breathing Timer</div><div class="tdesc">Box breathing · Lowers cortisol</div></div><div class="tarrow">›</div></div>
-<div class="trow" onclick="openSub('grounding')"><div class="ticon" style="background:rgba(74,144,200,0.15)">🌿</div><div class="tinfo"><div class="tname">5-4-3-2-1 Grounding</div><div class="tdesc">Sensory anchoring · Clinically validated</div></div><div class="tarrow">›</div></div>
-<div class="trow" onclick="openSub('checklist')"><div class="ticon" style="background:rgba(239,159,39,0.15)">📋</div><div class="tinfo"><div class="tname">Preparedness Checklist</div><div class="tdesc">Calm, practical storm readiness</div></div><div class="tarrow">›</div></div>
-<div class="trow" onclick="openSub('facts')"><div class="ticon" style="background:rgba(83,74,183,0.15)">💬</div><div class="tinfo"><div class="tname">Storm Facts</div><div class="tdesc">Understand what you're hearing</div></div><div class="tarrow">›</div></div>
-<div class="trow" onclick="openSub('journal')"><div class="ticon" style="background:rgba(255,255,255,0.04)">📝</div><div class="tinfo"><div class="tname">Post-Storm Journal</div><div class="tdesc">Reflect, track, build resilience</div></div><div class="tarrow">›</div></div>
-<div class="fcard"><div class="flabel">Did you know</div><div class="ftxt" id="rfact">Thunder can't hurt you. It's just the air rapidly expanding from lightning's heat.</div></div>
-</div>
-
-</div>
-
-<!-- NAV -->
-
-<div class="bnav">
-<button class="ni active" onclick="snav('now',this)"><div class="nicon">🌦</div><div class="nlabel">Now</div></button>
-<button class="ni" onclick="snav('comp',this)"><div class="nicon">🧘</div><div class="nlabel">Calm</div></button>
-<button class="ni" onclick="snav('tk',this)"><div class="nicon">🛠</div><div class="nlabel">Toolkit</div></button>
-<button class="ni" onclick="openSub('profile')"><div class="nicon">⚙️</div><div class="nlabel">Profile</div></button>
+  <!-- Morning Briefing -->
+  <div class="briefing-card" id="briefingCard">
+    <div class="briefing-header">
+      <span>☀️</span>
+      <span>Morning Briefing</span>
+    </div>
+    <div class="briefing-text" id="briefingText">Checking today's forecast for your area...</div>
+  </div>
 </div>
 
-<!-- CELEBRATION MODAL -->
+<!-- TAB: COMPANION -->
+<div class="tab-content" id="tab-companion">
+  <div class="section-header">Skye Companion</div>
+  <div class="companion-section">
+    <div class="storm-pill hidden" id="stormPill">Storm 1 of 3 on us</div>
+    <div class="companion-message" id="companionMsg">"Checking in with your local conditions. One moment..."</div>
+    
+    <div class="storm-progress-card" id="stormProgressCard" style="display:none">
+      <div class="progress-label">
+        <span>Storm passing your area</span>
+        <span id="progressPct">0%</span>
+      </div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill"></div></div>
+      <div class="progress-times">
+        <span id="progressStart">Storm started</span>
+        <span id="progressEnd">All clear</span>
+      </div>
+    </div>
 
-<div class="cele-ov" id="cele-ov">
-<div class="cele">
-<div class="cele-icon">&#x1F324;</div>
-<h2>You made it through<br>3 storms with Skye.</h2>
-<div class="cele-stats">
-<div class="cele-stat"><div class="cele-sn" id="cele-sc">3</div><div class="cele-sl">Storms</div></div>
-<div class="cele-stat"><div class="cele-sn" id="cele-mood">--</div><div class="cele-sl">Avg Mood</div></div>
-<div class="cele-stat"><div class="cele-sn" id="cele-tk">0</div><div class="cele-sl">Toolkit</div></div>
+
+  </div>
 </div>
-<hr class="cele-div">
-<p class="cele-pitch">Your free storms are up. Keep the full experience going for less than a coffee a week.</p>
-<div class="cele-feats">
-<div class="cele-ft"><span class="star">&#9733;</span> Live Storm Companion with continuous updates</div>
-<div class="cele-ft"><span class="star">&#9733;</span> Storm Progress Bar with countdown</div>
-<div class="cele-ft"><span class="star">&#9733;</span> Advanced journaling with season stats</div>
-<div class="cele-ft"><span class="star">&#9733;</span> Personalized morning briefings</div>
+
+<!-- TAB: TOOLKIT -->
+<div class="tab-content" id="tab-toolkit">
+  <div class="section-header">Anxiety Toolkit</div>
+  <div class="toolkit-list">
+    <div class="toolkit-item" onclick="openSub('breathing')">
+      <div class="toolkit-icon">🌬</div>
+      <div class="toolkit-info"><div class="toolkit-title">Breathing Timer</div><div class="toolkit-desc">Box breathing · 60 seconds · Lowers cortisol</div></div>
+      <div class="toolkit-arrow">›</div>
+    </div>
+    <div class="toolkit-item" onclick="openSub('grounding')">
+      <div class="toolkit-icon">🌿</div>
+      <div class="toolkit-info"><div class="toolkit-title">5-4-3-2-1 Grounding</div><div class="toolkit-desc">Sensory anchoring · Clinically validated</div></div>
+      <div class="toolkit-arrow">›</div>
+    </div>
+    <div class="toolkit-item" onclick="openSub('checklist')">
+      <div class="toolkit-icon">📋</div>
+      <div class="toolkit-info"><div class="toolkit-title">Preparedness Checklist</div><div class="toolkit-desc">Calm, practical storm readiness</div></div>
+      <div class="toolkit-arrow">›</div>
+    </div>
+    <div class="toolkit-item" onclick="openSub('facts')">
+      <div class="toolkit-icon">⚡</div>
+      <div class="toolkit-info"><div class="toolkit-title">Storm Facts</div><div class="toolkit-desc">Understand what you're hearing</div></div>
+      <div class="toolkit-arrow">›</div>
+    </div>
+    <div class="toolkit-item" onclick="openSub('journal')">
+      <div class="toolkit-icon">📝</div>
+      <div class="toolkit-info"><div class="toolkit-title">Post-Storm Journal</div><div class="toolkit-desc">Reflect, track, build resilience</div></div>
+      <div class="toolkit-arrow">›</div>
+    </div>
+  </div>
+  <div class="fact-card">
+    <div class="fact-label">Did you know</div>
+    <div class="fact-text" id="randomFact">Thunder can't hurt you. It's just the air rapidly expanding from lightning's heat — the same sound every time.</div>
+  </div>
 </div>
-<button class="cele-btn1" onclick="window.open('https://buymeacoffee.com/skye.ctes/membership','_blank')">Get Skye Premium &#8212; $5/mo</button>
-<button class="cele-btn2" onclick="closeCele()">Continue with free features</button>
+
+<!-- TAB: PROFILE -->
+<div class="tab-content" id="tab-profile">
+  <div class="section-header">Profile</div>
+  <div class="profile-section">
+
+    <!-- Font Size -->
+    <div class="profile-card">
+      <h3>Display</h3>
+      <div class="font-toggle">
+        <button class="font-opt" data-size="font-sm" onclick="setFont('font-sm')">Sm</button>
+        <button class="font-opt active" data-size="font-md" onclick="setFont('font-md')">Md</button>
+        <button class="font-opt" data-size="font-lg" onclick="setFont('font-lg')">Lg</button>
+      </div>
+    </div>
+
+    <!-- Triggers -->
+    <div class="profile-card">
+      <h3>My Storm Triggers</h3>
+      <div class="trigger-list-profile" id="profileTriggers"></div>
+    </div>
+
+    <!-- Premium Status -->
+    <div class="profile-card">
+      <h3>Skye Premium</h3>
+      <div id="premiumStatus">
+        <p style="font-size:13px;color:var(--text-secondary);margin-bottom:8px">Enter your unlock code to activate premium features.</p>
+        <div class="unlock-input-row">
+          <input type="text" class="unlock-input" id="unlockInput" placeholder="Enter unlock code">
+          <button class="btn-sm" onclick="tryUnlock()">Unlock</button>
+        </div>
+        <p style="font-size:12px;color:var(--text-dim);margin-top:8px">After subscribing at buymeacoffee.com/skye.ctes, email skye.ctes.app@gmail.com with your receipt for your code.</p>
+      </div>
+      <div id="premiumActive" class="hidden">
+        <div class="premium-badge">✓ Premium Active</div>
+      </div>
+    </div>
+
+    <!-- Alert Education -->
+    <div class="profile-card">
+      <h3>Understanding Alerts</h3>
+      <div class="alert-edu">
+        <strong>NOAA Weather Radio</strong> is the most reliable way to receive alerts — not outdoor sirens. Sirens are outdoor warning systems designed for people outside. Enable WEA (Wireless Emergency Alerts) on your phone as a backup.<br><br>
+        <strong>Watch vs Warning:</strong> A Watch means conditions are possible. A Warning means a threat has been detected or is imminent. Watches = awareness. Warnings = action.<br><br>
+        <strong>Tornado warning polygons</strong> are intentionally larger than the tornado itself to account for uncertainty. Being inside a polygon does NOT mean a tornado is headed directly for you.
+      </div>
+    </div>
+
+    <!-- Season Stats -->
+    <div class="profile-card">
+      <h3>Season Stats</h3>
+      <div class="stat-row">
+        <div class="stat-box"><div class="stat-num" id="statStorms">0</div><div class="stat-label">Storms</div></div>
+        <div class="stat-box"><div class="stat-num" id="statMood">--</div><div class="stat-label">Avg mood</div></div>
+        <div class="stat-box"><div class="stat-num" id="statToolkit">0</div><div class="stat-label">Toolkit uses</div></div>
+      </div>
+    </div>
+
+    <!-- Journal History -->
+    <div class="profile-card">
+      <h3>Journal History</h3>
+      <div id="journalHistory"><p style="font-size:13px;color:var(--text-dim)">No entries yet.</p></div>
+    </div>
+
+    <div class="version-footer">
+      Skye v0.4 PWA · NWS API · Emotional Weather Technology<br>
+      Skye does not guarantee safety. Always follow NWS guidance.
+    </div>
+  </div>
 </div>
+```
+
+  </div><!-- end main-scroll -->
+
+  <!-- BOTTOM NAV -->
+
+  <nav class="bottom-nav">
+    <button class="nav-tab active" data-tab="now" onclick="switchTab('now')"><span class="nav-icon">🌦</span>Now</button>
+    <button class="nav-tab" data-tab="companion" onclick="switchTab('companion')"><span class="nav-icon">🧘</span>Companion</button>
+    <button class="nav-tab" data-tab="toolkit" onclick="switchTab('toolkit')"><span class="nav-icon">🛠</span>Toolkit</button>
+    <button class="nav-tab" data-tab="profile" onclick="switchTab('profile')"><span class="nav-icon">⚙️</span>Profile</button>
+  </nav>
+</div><!-- end #app -->
+
+<!-- ==================== AM I SAFE MODAL ==================== -->
+
+<div class="modal-overlay" id="safeModal">
+  <div class="modal-sheet">
+    <div class="modal-shield">🛡</div>
+    <div class="modal-title" id="safeTitle">Checking...</div>
+    <div class="modal-text" id="safeText">Analyzing current conditions for your location...</div>
+    <div class="modal-disclaimer">Based on current data at this time. Skye does not guarantee safety and does not override official NWS warnings. Always follow local emergency guidance.</div>
+    <button class="modal-close-btn" onclick="closeSafeModal()">I understand</button>
+  </div>
 </div>
 
-<!-- SAFE MODAL -->
+<!-- ==================== PREMIUM PAYWALL MODAL ==================== -->
 
-<div class="moverlay" id="sm" onclick="closeM()"><div class="modal" onclick="event.stopPropagation()">
-<div class="m-icon" id="si">🛡</div><div class="m-title" id="st">Checking...</div>
-<div class="m-desc" id="sd">Analyzing current conditions for your location...</div>
-<div class="m-disc">Based on current data at this time. Skye does not guarantee safety and does not override official NWS warnings. Always follow local emergency guidance.</div>
-<button class="m-close" onclick="closeM()">I understand</button>
-</div></div>
+<div class="modal-overlay" id="paywallModal">
+  <div class="paywall-sheet">
+    <h2>You've weathered 3 storms ⛈</h2>
+    <p class="sub">Unlock the full Skye experience to keep your calm going.</p>
+    <div class="paywall-features">
+      <div class="paywall-feat"><span class="check">✓</span> Full Storm Companion with live updates</div>
+      <div class="paywall-feat"><span class="check">✓</span> Unlimited journal entries</div>
+      <div class="paywall-feat"><span class="check">✓</span> Season stats & progress tracking</div>
+      <div class="paywall-feat"><span class="check">✓</span> Detailed morning briefings</div>
+    </div>
+    <div class="paywall-price">$5<span style="font-family:'DM Sans';font-size:14px;color:var(--text-secondary)">/month</span></div>
+    <div class="paywall-price-sub">Your first 3 storms were on us.</div>
+    <button class="paywall-cta" onclick="window.open('https://buymeacoffee.com/skye.ctes/membership','_blank')">Get Skye Premium</button>
+    <button class="paywall-skip" onclick="closePaywall()">Not yet</button>
+    <div class="paywall-unlock-row">
+      <div class="paywall-unlock-label">Already subscribed? Enter your unlock code:</div>
+      <div class="unlock-input-row">
+        <input type="text" class="unlock-input" id="paywallUnlockInput" placeholder="Unlock code">
+        <button class="btn-sm" onclick="tryPaywallUnlock()">Unlock</button>
+      </div>
+    </div>
+  </div>
+</div>
 
-<!-- SUB: BREATHING -->
+<!-- ==================== SUB-SCREENS ==================== -->
 
-<div class="sub" id="sub-breathing"><div class="sub-h"><span class="bk" onclick="closeSub('breathing')">←</span>Breathing Timer</div>
-<div class="sub-c" style="text-align:center">
-<div class="bcircle" id="bc"><span id="bl">Ready</span></div>
-<p style="font-size:calc(var(--fs) - 2px);color:#5d7a96;margin:12px 0;line-height:1.6">Box breathing activates your parasympathetic nervous system and lowers cortisol.<br>Inhale 4s · Hold 4s · Exhale 4s · Hold 4s</p>
-<button class="bbtn" id="bb" onclick="startBreath()">Begin</button>
-</div></div>
+<!-- Breathing -->
 
-<!-- SUB: GROUNDING -->
+<div class="sub-screen" id="sub-breathing">
+  <div class="sub-header"><button class="back-btn" onclick="closeSub('breathing')">←</button><div class="sub-title">Breathing Timer</div></div>
+  <div class="sub-content">
+    <div class="breath-circle-wrap"><div class="breath-circle" id="breathCircle"><div class="breath-phase" id="breathPhase">Ready</div><div class="breath-count" id="breathCount"></div></div></div>
+    <button class="breath-start-btn" id="breathBtn" onclick="startBreathing()">Begin</button>
+    <div class="breath-instruction">Box breathing activates your parasympathetic nervous system and lowers cortisol.<br><br>Inhale 4s · Hold 4s · Exhale 4s · Hold 4s</div>
+  </div>
+</div>
 
-<div class="sub" id="sub-grounding"><div class="sub-h"><span class="bk" onclick="closeSub('grounding')">←</span>5-4-3-2-1 Grounding</div>
-<div class="sub-c">
-<p style="font-size:calc(var(--fs) - 2px);color:#5d7a96;margin-bottom:16px;line-height:1.6">Name things around you right now. This pulls your attention from the storm to the present moment.</p>
-<div class="gstep"><div class="gnum">5</div><div class="gtxt">Things you can SEE</div><input placeholder="Look around you..."></div>
-<div class="gstep"><div class="gnum">4</div><div class="gtxt">Things you can TOUCH</div><input placeholder="What's near you..."></div>
-<div class="gstep"><div class="gnum">3</div><div class="gtxt">Things you can HEAR</div><input placeholder="Listen carefully..."></div>
-<div class="gstep"><div class="gnum">2</div><div class="gtxt">Things you can SMELL</div><input placeholder="Take a breath..."></div>
-<div class="gstep"><div class="gnum">1</div><div class="gtxt">Thing you can TASTE</div><input placeholder="What do you notice..."></div>
-</div></div>
+<!-- Grounding -->
 
-<!-- SUB: CHECKLIST -->
+<div class="sub-screen" id="sub-grounding">
+  <div class="sub-header"><button class="back-btn" onclick="closeSub('grounding')">←</button><div class="sub-title">5-4-3-2-1 Grounding</div></div>
+  <div class="sub-content">
+    <p style="font-size:14px;color:var(--text-secondary);margin-bottom:20px;line-height:1.6">Name things around you right now. This pulls your attention from the storm to the present moment.</p>
+    <div class="ground-step"><span class="ground-num">5</span><span class="ground-label">Things you can SEE</span><input class="ground-input" placeholder="Look around..."></div>
+    <div class="ground-step"><span class="ground-num">4</span><span class="ground-label">Things you can TOUCH</span><input class="ground-input" placeholder="What's near you..."></div>
+    <div class="ground-step"><span class="ground-num">3</span><span class="ground-label">Things you can HEAR</span><input class="ground-input" placeholder="Listen carefully..."></div>
+    <div class="ground-step"><span class="ground-num">2</span><span class="ground-label">Things you can SMELL</span><input class="ground-input" placeholder="Breathe in..."></div>
+    <div class="ground-step"><span class="ground-num">1</span><span class="ground-label">Thing you can TASTE</span><input class="ground-input" placeholder="Notice..."></div>
+  </div>
+</div>
 
-<div class="sub" id="sub-checklist"><div class="sub-h"><span class="bk" onclick="closeSub('checklist')">←</span>Preparedness Checklist</div>
-<div class="sub-c"><p style="font-size:calc(var(--fs) - 2px);color:#5d7a96;margin-bottom:16px">Having a plan reduces anxiety before a storm even starts.</p><div id="cl-items"></div></div></div>
+<!-- Checklist -->
 
-<!-- SUB: FACTS -->
+<div class="sub-screen" id="sub-checklist">
+  <div class="sub-header"><button class="back-btn" onclick="closeSub('checklist')">←</button><div class="sub-title">Preparedness Checklist</div></div>
+  <div class="sub-content">
+    <p style="font-size:14px;color:var(--text-secondary);margin-bottom:16px;line-height:1.6">Having a plan reduces anxiety before a storm even starts.</p>
+    <div id="checklistItems"></div>
+  </div>
+</div>
 
-<div class="sub" id="sub-facts"><div class="sub-h"><span class="bk" onclick="closeSub('facts')">←</span>Storm Facts</div><div class="sub-c" id="fl"></div></div>
+<!-- Storm Facts -->
 
-<!-- SUB: JOURNAL -->
+<div class="sub-screen" id="sub-facts">
+  <div class="sub-header"><button class="back-btn" onclick="closeSub('facts')">←</button><div class="sub-title">Storm Facts</div></div>
+  <div class="sub-content" id="factsContent"></div>
+</div>
 
-<div class="sub" id="sub-journal"><div class="sub-h"><span class="bk" onclick="closeSub('journal')">←</span>Post-Storm Journal</div>
-<div class="sub-c">
-<p style="font-size:calc(var(--fs) + 1px);color:#e8f0f8;font-weight:500;margin-bottom:4px">You made it through.</p>
-<p style="font-size:calc(var(--fs) - 2px);color:#5d7a96;margin-bottom:16px">Take a moment to check in with yourself.</p>
-<p style="font-size:calc(var(--fs) - 2px);color:#5d7a96;margin-bottom:8px">How do you feel right now?</p>
-<div class="jmood"><button class="mbtn" onclick="sMood(1)">😰</button><button class="mbtn" onclick="sMood(2)">😟</button><button class="mbtn" onclick="sMood(3)">😐</button><button class="mbtn" onclick="sMood(4)">😌</button><button class="mbtn" onclick="sMood(5)">😊</button></div>
-<textarea class="jta" id="jt" placeholder="What helped? What didn't?"></textarea>
-<button class="jsave" onclick="saveJ()">Save Entry</button>
-</div></div>
+<!-- Journal -->
 
-<!-- SUB: PROFILE -->
-
-<div class="sub" id="sub-profile"><div class="sub-h"><span class="bk" onclick="closeSub('profile')">←</span>Profile</div>
-<div class="sub-c">
-<div class="psec">Display</div>
-<div class="srow"><div class="slabel">Font Size</div><div class="ftog"><button class="fopt" data-s="12" onclick="setFS(12)">Sm</button><button class="fopt on" data-s="14" onclick="setFS(14)">Md</button><button class="fopt" data-s="16" onclick="setFS(16)">Lg</button></div></div>
-<div class="psec">My Storm Triggers</div><div id="ptrig"></div>
-<div class="psec">Understanding Alerts</div>
-<div class="icard"><p><strong>NOAA Weather Radio</strong> is the most reliable alert source — not outdoor sirens. Sirens warn people who are <em>outside</em>. Enable WEA (Wireless Emergency Alerts) on your phone as a backup.</p></div>
-<div class="icard"><p><strong>Watch vs Warning:</strong> A Watch means conditions are possible. A Warning means a threat has been detected. Watches = awareness. Warnings = action.</p></div>
-<div class="icard"><p><strong>Tornado warning polygons</strong> are intentionally larger than the tornado itself to account for path uncertainty. Being inside a polygon does NOT mean a tornado is headed directly for you.</p></div>
-<div class="psec">Season Stats</div>
-<div class="sgrid"><div class="scard"><div class="snum" id="ss">0</div><div class="slab">Storms</div></div><div class="scard"><div class="snum" id="sa">--</div><div class="slab">Avg mood</div></div><div class="scard"><div class="snum" id="stu">0</div><div class="slab">Toolkit</div></div></div>
-<div class="psec">Journal History</div><div id="jl"><p style="font-size:calc(var(--fs) - 2px);color:#3a5168">No entries yet.</p></div>
-<div class="vlabel">Skye v0.3 PWA · NWS API · Emotional Weather Technology<br>Skye does not guarantee safety. Always follow NWS guidance.</div>
-</div></div>
-
+<div class="sub-screen" id="sub-journal">
+  <div class="sub-header"><button class="back-btn" onclick="closeSub('journal')">←</button><div class="sub-title">Post-Storm Journal</div></div>
+  <div class="sub-content">
+    <p style="font-size:16px;color:#fff;font-weight:600;margin-bottom:4px">You made it through.</p>
+    <p style="font-size:14px;color:var(--text-secondary);margin-bottom:20px">Take a moment to check in with yourself.</p>
+    <p style="font-size:13px;color:var(--text-secondary);margin-bottom:8px">How do you feel right now?</p>
+    <div class="mood-picker" id="moodPicker">
+      <span class="mood-opt" data-mood="1" onclick="selectMood(1)">😰</span>
+      <span class="mood-opt" data-mood="2" onclick="selectMood(2)">😟</span>
+      <span class="mood-opt" data-mood="3" onclick="selectMood(3)">😐</span>
+      <span class="mood-opt" data-mood="4" onclick="selectMood(4)">😌</span>
+      <span class="mood-opt" data-mood="5" onclick="selectMood(5)">😊</span>
+    </div>
+    <textarea class="journal-textarea" id="journalText" placeholder="What helped? What didn't?"></textarea>
+    <button class="journal-save-btn" onclick="saveJournal()">Save Entry</button>
+  </div>
 </div>
 
 <script>
-const S={lat:null,lon:null,fc:null,al:[],
-trg:JSON.parse(localStorage.getItem('skye_trg')||'[]'),
-jrn:JSON.parse(localStorage.getItem('skye_jrn')||'[]'),
-sc:parseInt(localStorage.getItem('skye_sc')||'0'),
-prem:localStorage.getItem('skye_prem')==='true',
-ob:localStorage.getItem('skye_ob')==='true',
-cl:JSON.parse(localStorage.getItem('skye_cl')||'{}'),
-fs:parseInt(localStorage.getItem('skye_fs')||'14'),
-tu:parseInt(localStorage.getItem('skye_tu')||'0'),
-mood:null,bInt:null,lastAl:null,lFlash:null};
+// ==================== STATE ====================
+let state = {
+  triggers: [],
+  onboarded: false,
+  fontSize: 'font-md',
+  lat: null,
+  lon: null,
+  locationName: 'Finding location...',
+  weather: null,
+  alerts: [],
+  stormCount: 0,
+  isPremium: false,
+  journalEntries: [],
+  checklist: {},
+  toolkitUses: 0,
+  currentTab: 'now',
+  alertState: 'calm', // calm, watch, warning
+  breathInterval: null,
+  currentMood: null,
+};
 
-document.addEventListener('DOMContentLoaded',()=>{
-  setFS(S.fs);
-  if(S.ob){document.getElementById('onboarding').classList.add('hidden');getLoc()}
-  else initOB();
-  updClock();setInterval(updClock,60000);
-  renderCL();renderFacts();renderPT();renderJL();checkPrem();
-  if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
-  window.addEventListener('online',()=>document.getElementById('s-dot').classList.remove('offline'));
-  window.addEventListener('offline',()=>document.getElementById('s-dot').classList.add('offline'));
-  if(!navigator.onLine)document.getElementById('s-dot').classList.add('offline');
+const UNLOCK_CODE = 'SKYECALM2026';
+const FACTS = [
+  {icon:'⚡', text:'Thunder can\'t hurt you. It\'s just the air rapidly expanding from lightning\'s heat — the same sound every time.'},
+  {icon:'🌪', text:'Tornado warning polygons are intentionally much larger than the tornado itself. Being inside a polygon does NOT mean a tornado is headed directly for you.'},
+  {icon:'🔊', text:'Thunder sounds louder at night because cooler air near the ground bends sound waves downward. The storm isn\'t worse — you just hear it more clearly.'},
+  {icon:'⏱', text:'Most thunderstorms pass any single point in 30–60 minutes. They feel eternal, but they\'re always moving.'},
+  {icon:'📻', text:'NOAA Weather Radio is the most reliable alert source. Outdoor sirens are designed for people outside, not a personal warning system.'},
+  {icon:'🏠', text:'Modern wood-frame homes are engineered to handle straight-line winds up to 90 mph. Most thunderstorms produce winds between 40–60 mph.'},
+  {icon:'📱', text:'Social media "engagement farms" deliberately post scary forecasts to get clicks. Your local NWS office is always the most reliable source.'},
+  {icon:'🌧', text:'A Severe Thunderstorm Watch means conditions are favorable. A Warning means one has been detected. Watches = awareness, Warnings = action.'},
+];
+const CHECKLIST_ITEMS = [
+  'Flashlight with fresh batteries',
+  'Phone charged above 80%',
+  'NOAA Weather Radio or WEA alerts enabled',
+  'Know your safe room (interior room, lowest floor)',
+  'Water and snacks accessible',
+  'Shoes near your safe spot',
+  'Important documents in a bag',
+  'Helmet for each family member',
+  'Pet carrier or leash ready',
+  'Know nearest storm shelter (if in mobile home)',
+];
+
+// ==================== INIT ====================
+function init() {
+  loadState();
+  if (state.onboarded) {
+    document.getElementById('onboarding').classList.add('hidden');
+  }
+  applyFont();
+  renderStars();
+  updateClock();
+  setInterval(updateClock, 30000);
+  renderProfileTriggers();
+  renderChecklist();
+  renderFacts();
+  renderJournalHistory();
+  renderPremiumStatus();
+  setRandomFact();
+  getLocation();
+}
+
+function loadState() {
+  try {
+    const s = localStorage.getItem('skye_state');
+    if (s) {
+      const parsed = JSON.parse(s);
+      state = {...state, ...parsed};
+    }
+  } catch(e) {}
+}
+
+function saveState() {
+  try {
+    const toSave = {
+      triggers: state.triggers,
+      onboarded: state.onboarded,
+      fontSize: state.fontSize,
+      stormCount: state.stormCount,
+      isPremium: state.isPremium,
+      journalEntries: state.journalEntries,
+      checklist: state.checklist,
+      toolkitUses: state.toolkitUses,
+    };
+    localStorage.setItem('skye_state', JSON.stringify(toSave));
+  } catch(e) {}
+}
+
+// ==================== ONBOARDING ====================
+document.querySelectorAll('#onboard-triggers .trigger-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    chip.classList.toggle('selected');
+  });
 });
 
-// Onboarding
-function initOB(){
-  document.querySelectorAll('.chip').forEach(c=>{c.onclick=()=>{c.classList.toggle('on');document.getElementById('ob-done').disabled=!document.querySelector('.chip.on')}});
-  document.getElementById('ob-done').onclick=()=>{
-    S.trg=[...document.querySelectorAll('.chip.on')].map(c=>c.dataset.t);
-    localStorage.setItem('skye_trg',JSON.stringify(S.trg));
-    localStorage.setItem('skye_ob','true');S.ob=true;
-    document.getElementById('onboarding').classList.add('hidden');
-    document.getElementById('pe-screen').classList.add('visible');
-    renderPT();
-  };
-}
-function closePE(){document.getElementById('pe-screen').classList.remove('visible');getLoc()}
+document.getElementById('onboard-continue').addEventListener('click', () => {
+  const selected = [];
+  document.querySelectorAll('#onboard-triggers .trigger-chip.selected').forEach(c => {
+    selected.push(c.dataset.trigger);
+  });
+  state.triggers = selected;
+  state.onboarded = true;
+  saveState();
+  document.getElementById('onboarding').classList.add('hidden');
+  renderProfileTriggers();
+});
 
-// Location
-function getLoc(){
-  if(!navigator.geolocation){document.getElementById('loc').textContent='Location unavailable';return}
-  navigator.geolocation.getCurrentPosition(p=>{S.lat=p.coords.latitude;S.lon=p.coords.longitude;fetchWx()},
-  ()=>{document.getElementById('loc').textContent='Location denied'});
-}
-
-// Weather
-async function fetchWx(){
-  try{
-    const pt=await fetch(`https://api.weather.gov/points/${S.lat},${S.lon}`).then(r=>r.json());
-    const city=pt.properties.relativeLocation?.properties?.city||'';
-    const st=pt.properties.relativeLocation?.properties?.state||'';
-    document.getElementById('loc').textContent=city?`${city}, ${st}`:`${S.lat.toFixed(2)}, ${S.lon.toFixed(2)}`;
-    const[fc,al]=await Promise.all([
-      fetch(pt.properties.forecast).then(r=>r.json()),
-      fetch(`https://api.weather.gov/alerts/active?point=${S.lat},${S.lon}`).then(r=>r.json())
-    ]);
-    S.fc=fc;S.al=al.features||[];updUI();
-    setTimeout(fetchWx,S.al.length>0?60000:300000);
-  }catch(e){console.error(e);setTimeout(fetchWx,300000)}
+// ==================== STARS ====================
+function renderStars() {
+  const container = document.getElementById('stars');
+  let html = '';
+  for (let i = 0; i < 60; i++) {
+    const x = Math.random() * 100;
+    const y = Math.random() * 60;
+    const delay = Math.random() * 5;
+    const size = Math.random() * 1.5 + 1;
+    html += '<div class="star" style="left:'+x+'%;top:'+y+'%;animation-delay:'+delay+'s;width:'+size+'px;height:'+size+'px"></div>';
+  }
+  container.innerHTML = html;
 }
 
-// UI
-function updUI(){
-  const p=S.fc?.properties?.periods?.[0];if(!p)return;
-  const fc=p.shortForecast.toLowerCase();
-  document.getElementById('h-temp').textContent=p.temperature+'°';
-  document.getElementById('h-cond').textContent=p.shortForecast;
-  document.getElementById('h-icon').textContent=wxI(fc);
-  const sky=document.getElementById('sky-bg');
-  sky.className='sky-bg'+(S.al.some(a=>['Extreme','Severe'].includes(a.properties.severity))?' warn-sky':S.al.length>0?' watch-sky':'');
-  if((fc.includes('thunder')||fc.includes('storm'))&&!S.lFlash){S.lFlash=setInterval(()=>{const l=document.getElementById('lightning');l.classList.add('flash');setTimeout(()=>l.classList.remove('flash'),200)},Math.random()*6000+3000)}
-  else if(!fc.includes('thunder')&&!fc.includes('storm')&&S.lFlash){clearInterval(S.lFlash);S.lFlash=null}
-  document.getElementById('d-cond').textContent=p.shortForecast.split(' ').slice(0,2).join(' ');
-  document.getElementById('d-conds').textContent=p.detailedForecast.split('.')[0];
-  document.getElementById('d-wind').textContent=p.windSpeed;
-  document.getElementById('d-winds').textContent=p.windDirection;
-  const hum=p.relativeHumidity?.value;
-  document.getElementById('d-hum').textContent=hum?Math.round(hum)+'%':'--';
-  document.getElementById('d-hums').textContent=hum?(hum>70?'Feels muggy':hum<30?'Dry air':'Comfortable'):'';
-  document.getElementById('d-alert').textContent=S.al.length;
-  document.getElementById('d-alerts').textContent=S.al.length===0?'None':S.al[0]?.properties?.event||'Active';
-  updBanner();updComp(p);updBrief(p);updSBar();
-  const dot=document.getElementById('s-dot');
-  S.al.some(a=>['Extreme','Severe'].includes(a.properties.severity))?dot.classList.add('alert'):dot.classList.remove('alert');
-  if(S.al.length>0&&S.lastAl===0){S.sc++;localStorage.setItem('skye_sc',S.sc);checkPrem();if(S.sc===3)setTimeout(showCele,5000)}
-  updatePill();
-  S.lastAl=S.al.length;
-  updatePill();
+// ==================== CLOCK ====================
+function updateClock() {
+  const now = new Date();
+  let h = now.getHours(), m = now.getMinutes();
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  h = h % 12 || 12;
+  document.getElementById('headerTime').textContent = h + ':' + (m < 10 ? '0' : '') + m + ' ' + ampm;
 }
 
-function updBanner(){
-  const b=document.getElementById('ab');
-  if(!S.al.length){b.className='abanner vis safe';document.getElementById('at').textContent='No active alerts';document.getElementById('ad').textContent='Based on current data, there are no weather alerts for your area.';return}
-  const a=S.al[0].properties,sev=a.severity,w=sev==='Extreme'||sev==='Severe';
-  b.className=`abanner vis ${w?'warning':'watch'}`;
-  document.getElementById('at').textContent=a.event;
-  document.getElementById('ad').textContent=a.headline||a.description?.slice(0,180)+'...';
+// ==================== TABS ====================
+function switchTab(tab) {
+  state.currentTab = tab;
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach(n => n.classList.remove('active'));
+  document.querySelector('.nav-tab[data-tab="'+tab+'"]').classList.add('active');
+  // Scroll to top
+  document.querySelector('.main-scroll').scrollTop = 0;
 }
 
-function updComp(p){
-  const fc=p.shortForecast.toLowerCase();let m='';
-  if(S.al.length>0){const a=S.al[0].properties;m=`There's a ${a.event} in effect for your area. Skye is monitoring and will keep you updated. The toolkit is here if you need it. You're not alone.`;document.getElementById('c-icon').textContent='⛈'}
-  else if(fc.includes('thunder')||fc.includes('storm')){m='Thunderstorm activity is in the area. Based on current data, conditions appear manageable. You\'re doing well.';document.getElementById('c-icon').textContent='🌧'}
-  else if(fc.includes('rain')||fc.includes('shower')){m='Rain is expected but nothing severe. A good time to be inside. You\'re safe.';document.getElementById('c-icon').textContent='🌧'}
-  else if(fc.includes('clear')||fc.includes('sunny')){m='Clear skies ahead. No storms expected. Enjoy the calm — you\'ve earned it.';document.getElementById('c-icon').textContent='☀️'}
-  else if(fc.includes('cloud')){m='Cloudy but no storm activity detected. Nothing to worry about right now.';document.getElementById('c-icon').textContent='☁️'}
-  else{m='Conditions look calm. Skye is watching so you don\'t have to.';document.getElementById('c-icon').textContent='🌤'}
-  if(S.trg.includes('tornadoes')&&!fc.includes('tornado'))m+=' No tornado activity in your area.';
-  if(S.trg.includes('lightning')&&!fc.includes('lightning')&&!fc.includes('thunder'))m+=' No lightning risk currently.';
-  document.getElementById('c-text').textContent=`"${m}"`;
+// ==================== LOCATION & WEATHER ====================
+function getLocation() {
+  if (!navigator.geolocation) {
+    document.getElementById('headerLocation').textContent = 'Location unavailable';
+    return;
+  }
+  navigator.geolocation.getCurrentPosition(pos => {
+    state.lat = pos.coords.latitude;
+    state.lon = pos.coords.longitude;
+    fetchWeather();
+  }, err => {
+    document.getElementById('headerLocation').textContent = 'Location denied';
+  }, {enableHighAccuracy: true, timeout: 10000});
 }
 
-function updBrief(p){
-  let t=p.detailedForecast;
-  if(S.trg.includes('tornadoes')&&!t.toLowerCase().includes('tornado'))t+=' No tornado activity expected.';
-  if(S.trg.includes('lightning')&&!t.toLowerCase().includes('lightning')&&!t.toLowerCase().includes('thunder'))t+=' No lightning risk at this time.';
-  document.getElementById('br-text').textContent=t;
-}
+async function fetchWeather() {
+  try {
+    // Get point metadata
+    const ptRes = await fetch('https://api.weather.gov/points/' + state.lat + ',' + state.lon, {
+      headers: {'User-Agent': '(Skye Weather App, skye.ctes.app@gmail.com)'}
+    });
+    const ptData = await ptRes.json();
+    const props = ptData.properties;
 
-function updSBar(){
-  const w=document.getElementById('sbar');
-  if(!S.al.length){w.classList.remove('vis');document.getElementById('pfill').style.width='0%';return}
-  const a=S.al[0].properties;
-  if(a.onset&&a.expires){
-    w.classList.add('vis');
-    const s=new Date(a.onset).getTime(),e=new Date(a.expires).getTime(),n=Date.now();
-    const pct=Math.min(100,Math.max(0,((n-s)/(e-s))*100));
-    document.getElementById('sfill').style.width=pct+'%';
-    document.getElementById('sbar-p').textContent=Math.round(pct)+'% through';
-    document.getElementById('pfill').style.width=pct+'%';
+    state.locationName = (props.relativeLocation?.properties?.city || '') + ', ' + (props.relativeLocation?.properties?.state || '');
+    document.getElementById('headerLocation').textContent = state.locationName;
+
+    // Fetch forecast
+    const fcRes = await fetch(props.forecast, {
+      headers: {'User-Agent': '(Skye Weather App, skye.ctes.app@gmail.com)'}
+    });
+    const fcData = await fcRes.json();
+    const current = fcData.properties.periods[0];
+
+    state.weather = current;
+    updateWeatherUI(current);
+    updateBriefing(current, fcData.properties.periods);
+
+    // Fetch alerts
+    const alRes = await fetch('https://api.weather.gov/alerts/active?point=' + state.lat + ',' + state.lon, {
+      headers: {'User-Agent': '(Skye Weather App, skye.ctes.app@gmail.com)'}
+    });
+    const alData = await alRes.json();
+    state.alerts = alData.features || [];
+    updateAlerts();
+    updateCompanion();
+
+    // Schedule next poll
+    const interval = state.alerts.length > 0 ? 60000 : 300000;
+    setTimeout(fetchWeather, interval);
+
+  } catch(e) {
+    console.error('Weather fetch error:', e);
+    setTimeout(fetchWeather, 60000);
   }
 }
 
-// Safe
-function checkSafe(){
-  document.getElementById('sm').classList.add('vis');
-  document.getElementById('si').textContent='🛡';document.getElementById('st').textContent='Checking...';document.getElementById('st').style.color='';
-  document.getElementById('sd').textContent='Analyzing current conditions for your location...';
-  setTimeout(()=>{
-    if(!S.al.length){document.getElementById('si').textContent='🟢';document.getElementById('st').textContent='You appear safe';document.getElementById('st').style.color='#5dcaa5';document.getElementById('sd').textContent='Based on current NWS data, there are no active weather alerts for your location. Conditions appear calm.'}
-    else{const a=S.al[0].properties,sev=a.severity;
-      if(sev==='Extreme'||sev==='Severe'){document.getElementById('si').textContent='⚠️';document.getElementById('st').textContent='Active warning in your area';document.getElementById('st').style.color='#C0386A';document.getElementById('sd').textContent=`${a.event}: ${a.headline||'Follow local emergency guidance.'}`}
-      else{document.getElementById('si').textContent='🟡';document.getElementById('st').textContent='Advisory in effect';document.getElementById('st').style.color='#FFD100';document.getElementById('sd').textContent=`${a.event}: ${a.headline||'Stay aware. No immediate danger based on current data.'}`}}
-  },1500);
-}
-function closeM(){document.getElementById('sm').classList.remove('vis')}
+function updateWeatherUI(period) {
+  const temp = period.temperature;
+  const desc = period.shortForecast;
+  const wind = period.windSpeed;
+  const windDir = period.windDirection;
+  const isDaytime = period.isDaytime;
 
-// Tabs
-function stab(n,el){document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));document.getElementById('tab-'+n).classList.add('active');document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));el.classList.add('active')}
-function snav(n,el){document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));document.getElementById('tab-'+n).classList.add('active');document.querySelectorAll('.ni').forEach(x=>x.classList.remove('active'));el.classList.add('active');
-const tm={now:0,comp:1,tk:2};document.querySelectorAll('.tab').forEach((t,i)=>{t.classList.toggle('active',i===tm[n])})}
+  document.getElementById('weatherTemp').textContent = temp + '°';
+  document.getElementById('weatherDesc').textContent = desc;
+  document.getElementById('weatherIcon').textContent = getWeatherEmoji(desc, isDaytime);
 
-// Subs
-function openSub(n){document.getElementById('sub-'+n).classList.add('vis');if(['breathing','grounding','checklist','facts','journal'].includes(n)){S.tu++;localStorage.setItem('skye_tu',S.tu);document.getElementById('stu').textContent=S.tu}}
-function closeSub(n){document.getElementById('sub-'+n).classList.remove('vis')}
-
-// Breathing
-function startBreath(){
-  const c=document.getElementById('bc'),l=document.getElementById('bl'),b=document.getElementById('bb');
-  if(S.bInt){clearInterval(S.bInt);S.bInt=null;b.textContent='Begin';l.textContent='Ready';c.className='bcircle';return}
-  b.textContent='Stop';let ph=0;
-  const phs=['Inhale...','Hold...','Exhale...','Hold...'],cls=['inhale','hold','exhale','hold'];
-  function step(){l.textContent=phs[ph];c.className='bcircle '+cls[ph];ph=(ph+1)%4}
-  step();S.bInt=setInterval(step,4000);
+  document.getElementById('cardConditions').textContent = desc.split(' ').slice(0, 2).join(' ');
+  document.getElementById('cardCondSub').textContent = isDaytime ? 'Daytime' : 'Overnight';
+  document.getElementById('cardWind').textContent = wind;
+  document.getElementById('cardWindSub').textContent = windDir;
+  document.getElementById('cardTemp').textContent = temp + '°F';
+  document.getElementById('cardTempSub').textContent = period.temperatureUnit;
 }
 
-// Journal
-function sMood(m){S.mood=m;document.querySelectorAll('.mbtn').forEach((b,i)=>b.classList.toggle('sel',i+1===m))}
-function saveJ(){
-  if(!S.mood)return;
-  S.jrn.unshift({d:new Date().toISOString(),m:S.mood,t:document.getElementById('jt').value});
-  if(S.jrn.length>50)S.jrn=S.jrn.slice(0,50);
-  localStorage.setItem('skye_jrn',JSON.stringify(S.jrn));
-  document.getElementById('jt').value='';S.mood=null;
-  document.querySelectorAll('.mbtn').forEach(b=>b.classList.remove('sel'));
-  renderJL();closeSub('journal');
-}
-function renderJL(){
-  const el=document.getElementById('jl');
-  if(!S.jrn.length){el.innerHTML='<p style="font-size:calc(var(--fs) - 2px);color:#3a5168">No entries yet.</p>';return}
-  const ms=['','😰','😟','😐','😌','😊'];
-  el.innerHTML=S.jrn.slice(0,(S.prem||S.sc<3)?50:3).map(e=>`<div class="jentry"><div class="je-head"><span style="font-size:20px">${ms[e.m]}</span><span class="je-date">${new Date(e.d).toLocaleDateString()}</span></div><p class="je-text">${e.t||'No notes'}</p></div>`).join('');
-  const avg=S.jrn.reduce((a,e)=>a+e.m,0)/S.jrn.length;
-  document.getElementById('ss').textContent=S.jrn.length;
-  document.getElementById('sa').textContent=avg.toFixed(1);
+function getWeatherEmoji(desc, isDaytime) {
+  const d = desc.toLowerCase();
+  if (d.includes('tornado')) return '🌪';
+  if (d.includes('thunder') || d.includes('tstorm')) return '⛈';
+  if (d.includes('rain') || d.includes('shower')) return '🌧';
+  if (d.includes('snow') || d.includes('blizzard')) return '🌨';
+  if (d.includes('fog')) return '🌫';
+  if (d.includes('cloud') || d.includes('overcast')) return isDaytime ? '⛅' : '☁️';
+  if (d.includes('wind')) return '💨';
+  return isDaytime ? '☀️' : '🌙';
 }
 
-// Checklist
-const CLI=['Helmet for each family member','NOAA Weather Radio with backup batteries','Phone charger / portable battery','Flashlight and extra batteries','Water and non-perishable snacks','First aid kit','Important documents in waterproof bag','Know your safe room (interior, lowest floor, no windows)','If in mobile home: know nearest shelter + have transport planned','WEA alerts enabled on phone','Emergency contacts written down','Shoes near your bed (debris)'];
-function renderCL(){document.getElementById('cl-items').innerHTML=CLI.map((item,i)=>`<div class="chk${S.cl[i]?' done':''}" onclick="togCL(${i})"><div class="cbox"></div><div class="chtxt">${item}</div></div>`).join('')}
-function togCL(i){S.cl[i]=!S.cl[i];localStorage.setItem('skye_cl',JSON.stringify(S.cl));renderCL()}
+function updateBriefing(current, periods) {
+  const triggers = state.triggers;
+  let text = '';
+  const desc = current.shortForecast.toLowerCase();
+  const temp = current.temperature;
 
-// Facts
-const FACTS=[{t:'Thunder can\'t hurt you',d:'Thunder is just air expanding from lightning\'s heat. The sound is the same every time. Startling, but not dangerous.'},
-{t:'Lightning distance',d:'Count seconds between flash and thunder, divide by 5. That\'s roughly how many miles away.'},
-{t:'Most storms pass quickly',d:'A typical thunderstorm cell lasts 30-60 minutes over one spot. Your anxiety stretches time.'},
-{t:'Your home handles this',d:'Standard wood-frame homes handle thunderstorms structurally. The sounds are scary. Your walls are strong.'},
-{t:'Tornado warning polygons',d:'Tornadoes are small but polygons are drawn larger for uncertainty. Being in one does NOT mean a tornado is coming directly at you.'},
-{t:'Watch vs Warning',d:'Watch = conditions possible. Warning = detected or imminent. Watches are awareness. Warnings mean act now.'},
-{t:'Social media fear-mongering',d:'Many accounts predict disasters weeks out that never happen. They profit from fear. Trust NWS and AMS-certified meteorologists.'},
-{t:'Sirens are for outdoors',d:'Outdoor sirens warn people OUTSIDE. NOAA Weather Radio and WEA phone alerts are your personal systems.'}];
-function renderFacts(){document.getElementById('fl').innerHTML=FACTS.map(f=>`<div class="fcard" style="margin-bottom:10px"><div class="flabel">${f.t}</div><div class="ftxt">${f.d}</div></div>`).join('');document.getElementById('rfact').textContent=FACTS[Math.floor(Math.random()*FACTS.length)].d}
+  if (desc.includes('thunder') || desc.includes('storm')) {
+    text = 'Thunderstorms are in the forecast today. ';
+    if (triggers.includes('thunder')) text += 'You may hear thunder — remember, it\'s just sound and it can\'t hurt you. ';
+    if (triggers.includes('lightning')) text += 'Stay indoors and away from windows. ';
+    text += 'Skye will stay with you if conditions change.';
+  } else if (desc.includes('rain') || desc.includes('shower')) {
+    text = 'Rain is expected today — currently ' + temp + '°. No severe weather in the forecast. A good day to stay cozy.';
+  } else if (desc.includes('clear') || desc.includes('sunny')) {
+    text = 'Clear skies today — ' + temp + '°. No storms expected. A calm day ahead.';
+  } else {
+    text = 'Currently ' + temp + '° with ' + current.shortForecast.toLowerCase() + '. No severe weather expected right now. Skye is watching so you don\'t have to.';
+  }
 
-// Profile
-function renderPT(){document.getElementById('ptrig').innerHTML=S.trg.map(t=>`<span class="ttag">${t}</span>`).join('')}
-function setFS(s){document.documentElement.style.setProperty('--fs',s+'px');S.fs=s;localStorage.setItem('skye_fs',s);document.querySelectorAll('.fopt').forEach(o=>o.classList.toggle('on',parseInt(o.dataset.s)===s))}
-function checkPrem(){if(S.sc>=3&&!S.prem)document.getElementById('pb').classList.add('vis')}
-
-// Helpers
-function updClock(){document.getElementById('clock').textContent=new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})}
-
-// STORM PILL
-function updatePill(){
-  var pill=document.getElementById('storm-pill');
-  if(S.sc>=3||S.prem||S.al.length===0){pill.classList.remove('vis');return}
-  if(S.al.length>0&&S.sc<3){pill.classList.add('vis');pill.textContent='Storm '+(S.sc+1)+' of 3 on us'}
-}
-// CELEBRATION
-function showCele(){
-  var avg=S.jrn.length?(S.jrn.reduce(function(a,e){return a+e.m},0)/S.jrn.length):0;
-  document.getElementById('cele-sc').textContent=S.sc;
-  document.getElementById('cele-mood').textContent=avg?avg.toFixed(1):'--';
-  document.getElementById('cele-tk').textContent=S.tkUses;
-  document.getElementById('cele-ov').classList.add('vis');
-}
-function closeCele(){
-  document.getElementById('cele-ov').classList.remove('vis');
-  lockPrem();
-}
-function lockPrem(){
-  if(S.prem||S.sc<3)return;
-  var sb=document.getElementById('sb-wrap');
-  if(sb)sb.classList.add('lock-ov');
+  document.getElementById('briefingText').textContent = text;
 }
 
-function wxI(f){if(f.includes('thunder')||f.includes('storm'))return'⛈';if(f.includes('rain')||f.includes('shower'))return'🌧';if(f.includes('snow'))return'🌨';if(f.includes('cloud')||f.includes('overcast'))return'☁️';if(f.includes('partly'))return'⛅';if(f.includes('fog'))return'🌫';if(f.includes('wind'))return'💨';if(f.includes('clear')||f.includes('sunny'))return'☀️';return'🌤'}
+// ==================== ALERTS ====================
+function updateAlerts() {
+  const alerts = state.alerts;
+  const banner = document.getElementById('alertBanner');
+  const count = alerts.length;
+
+  document.getElementById('cardAlerts').textContent = count;
+  document.getElementById('cardAlertsSub').textContent = count === 0 ? 'None' : count + ' active';
+
+  if (count === 0) {
+    setAlertState('calm');
+    banner.style.display = 'none';
+    return;
+  }
+
+  // Determine highest severity
+  let highest = 'watch';
+  for (const a of alerts) {
+    const severity = a.properties.severity;
+    const event = a.properties.event.toLowerCase();
+    if (severity === 'Extreme' || severity === 'Severe' || event.includes('warning')) {
+      highest = 'warning';
+      break;
+    }
+  }
+
+  setAlertState(highest);
+
+  // Show top alert in banner
+  const top = alerts[0].properties;
+  banner.className = 'alert-banner ' + (highest === 'warning' ? 'warning-alert' : 'watch-alert');
+  banner.textContent = (highest === 'warning' ? '🌪 ' : '⚡ ') + top.event + ' — ' + (top.areaDesc || '').split(';')[0];
+  if (top.expires) {
+    const exp = new Date(top.expires);
+    const h = exp.getHours() % 12 || 12;
+    const m = exp.getMinutes();
+    const ampm = exp.getHours() >= 12 ? 'PM' : 'AM';
+    banner.textContent += ' · Until ' + h + ':' + (m < 10 ? '0' : '') + m + ' ' + ampm;
+  }
+  banner.style.display = 'block';
+
+  // Track storm
+  if (highest === 'warning' && state.stormCount < 100) {
+    // Only increment once per alert event
+    const alertId = top.id;
+    const tracked = localStorage.getItem('skye_tracked_' + alertId);
+    if (!tracked) {
+      state.stormCount++;
+      saveState();
+      localStorage.setItem('skye_tracked_' + alertId, '1');
+      // Show paywall after 3
+      if (state.stormCount > 3 && !state.isPremium) {
+        setTimeout(() => {
+          document.getElementById('paywallModal').classList.add('open');
+          document.getElementById('paywallModal').style.display = 'flex';
+        }, 2000);
+      }
+    }
+  }
+}
+
+function setAlertState(s) {
+  state.alertState = s;
+  const bg = document.getElementById('sky-bg');
+  bg.className = s;
+  const dot = document.getElementById('statusDot');
+  if (s === 'calm') {
+    dot.style.background = '#1d9e75';
+    document.documentElement.style.setProperty('--status-color', '#1d9e75');
+  } else if (s === 'watch') {
+    dot.style.background = '#FFD100';
+    document.documentElement.style.setProperty('--status-color', '#FFD100');
+  } else {
+    dot.style.background = '#C0386A';
+    document.documentElement.style.setProperty('--status-color', '#C0386A');
+  }
+
+  // Safe button color
+  const safeBtn = document.getElementById('safeBtn');
+  if (s === 'calm') {
+    safeBtn.style.background = 'rgba(29,158,117,0.1)';
+    safeBtn.style.borderColor = 'rgba(29,158,117,0.25)';
+    safeBtn.style.color = '#1d9e75';
+  } else if (s === 'watch') {
+    safeBtn.style.background = 'rgba(255,209,0,0.1)';
+    safeBtn.style.borderColor = 'rgba(255,209,0,0.25)';
+    safeBtn.style.color = '#FFD100';
+  } else {
+    safeBtn.style.background = 'rgba(192,56,106,0.1)';
+    safeBtn.style.borderColor = 'rgba(192,56,106,0.25)';
+    safeBtn.style.color = '#C0386A';
+  }
+
+  // Lightning flash during warnings
+  if (s === 'warning') {
+    triggerLightning();
+  }
+}
+
+function triggerLightning() {
+  const el = document.getElementById('lightning');
+  el.classList.remove('flash');
+  void el.offsetWidth;
+  el.classList.add('flash');
+  // Random interval for next flash
+  const next = Math.random() * 15000 + 5000;
+  setTimeout(() => {
+    if (state.alertState === 'warning') triggerLightning();
+  }, next);
+}
+
+// ==================== COMPANION ====================
+function updateCompanion() {
+  const triggers = state.triggers;
+  const alerts = state.alerts;
+  let msg = '';
+  const pill = document.getElementById('stormPill');
+  const progressCard = document.getElementById('stormProgressCard');
+
+  if (alerts.length === 0) {
+    msg = 'All clear in your area right now. Skye is watching the weather so you don\'t have to. ';
+    if (state.weather) {
+      msg += 'Currently ' + state.weather.temperature + '° with ' + state.weather.shortForecast.toLowerCase() + '.';
+    }
+    msg += ' Take a breath — you\'re safe.';
+    progressCard.style.display = 'none';
+  } else {
+    const top = alerts[0].properties;
+    const event = top.event;
+    const desc = top.description || '';
+
+    if (event.toLowerCase().includes('tornado warning')) {
+      msg = 'A tornado warning is active in your area. Move to your safe room now — interior room, lowest floor, away from windows. ';
+      if (triggers.includes('tornadoes')) msg += 'Remember: the warning polygon is much larger than any actual tornado. Being inside it does not mean one is coming directly for you. ';
+      msg += 'Skye is right here with you.';
+    } else if (event.toLowerCase().includes('severe thunderstorm warning')) {
+      msg = 'A severe thunderstorm warning is active. Stay indoors and away from windows. ';
+      if (triggers.includes('thunder')) msg += 'You\'ll hear loud thunder — that\'s normal for this type of storm and it can\'t hurt you. ';
+      if (triggers.includes('lightning')) msg += 'Lightning is expected — as long as you\'re indoors, you\'re protected. ';
+      msg += 'This will pass.';
+    } else if (event.toLowerCase().includes('watch')) {
+      msg = 'A ' + event + ' is active. This means conditions are possible, not that a storm is happening right now. ';
+      msg += 'Skye will let you know immediately if anything changes. You don\'t need to watch the radar — that\'s what I\'m here for.';
+    } else {
+      msg = event + ' is active for your area. Stay aware but know that Skye is monitoring conditions for you. You\'re not alone in this.';
+    }
+
+    // Show storm progress if warning
+    if (event.toLowerCase().includes('warning') && top.onset && top.expires) {
+      progressCard.style.display = 'block';
+      const start = new Date(top.onset);
+      const end = new Date(top.expires);
+      const now = new Date();
+      const total = end - start;
+      const elapsed = now - start;
+      const pct = Math.min(100, Math.max(0, Math.round((elapsed / total) * 100)));
+      document.getElementById('progressPct').textContent = pct + '%';
+      document.getElementById('progressFill').style.width = pct + '%';
+      const fmtTime = d => { let h=d.getHours()%12||12,m=d.getMinutes();return h+':'+(m<10?'0':'')+m+(d.getHours()>=12?' PM':' AM');};
+      document.getElementById('progressStart').textContent = 'Started ' + fmtTime(start);
+      document.getElementById('progressEnd').textContent = 'Clears ~' + fmtTime(end);
+    } else {
+      progressCard.style.display = 'none';
+    }
+  }
+
+  // Storm pill
+  if (state.stormCount > 0 && state.stormCount <= 3 && !state.isPremium) {
+    pill.classList.remove('hidden');
+    pill.textContent = 'Storm ' + state.stormCount + ' of 3 on us';
+  } else {
+    pill.classList.add('hidden');
+  }
+
+  document.getElementById('companionMsg').textContent = '"' + msg + '"';
+}
+
+// ==================== AM I SAFE MODAL ====================
+document.getElementById('safeBtn').addEventListener('click', () => {
+  const modal = document.getElementById('safeModal');
+  modal.classList.add('open');
+  modal.style.display = 'flex';
+
+  let title = '', text = '';
+
+  if (state.alerts.length === 0) {
+    title = 'Based on current data, you appear safe';
+    text = 'No active severe weather alerts for your area. ';
+    if (state.weather) {
+      text += 'Currently ' + state.weather.temperature + '° with ' + state.weather.shortForecast.toLowerCase() + '. ';
+    }
+    text += 'Conditions are calm. Skye is monitoring for changes.';
+  } else {
+    const top = state.alerts[0].properties;
+    const event = top.event;
+    if (event.toLowerCase().includes('warning')) {
+      title = 'Active warning in your area';
+      text = top.event + ' is currently active. ' + (top.headline || '') + ' Follow your safety plan and stay in your safe room until the all-clear.';
+    } else {
+      title = 'Weather watch is active';
+      text = top.event + ' is active. This means conditions are possible, not imminent. Stay aware and Skye will notify you if the situation changes.';
+    }
+  }
+
+  document.getElementById('safeTitle').textContent = title;
+  document.getElementById('safeText').textContent = text;
+});
+
+function closeSafeModal() {
+  document.getElementById('safeModal').classList.remove('open');
+  document.getElementById('safeModal').style.display = 'none';
+}
+
+// ==================== PAYWALL ====================
+function closePaywall() {
+  document.getElementById('paywallModal').classList.remove('open');
+  document.getElementById('paywallModal').style.display = 'none';
+}
+
+function tryUnlock() {
+  const input = document.getElementById('unlockInput');
+  if (input.value.trim().toUpperCase() === UNLOCK_CODE) {
+    state.isPremium = true;
+    saveState();
+    renderPremiumStatus();
+    alert('Premium unlocked! Welcome to Skye Premium.');
+  } else {
+    alert('Invalid code. Email skye.ctes.app@gmail.com with your receipt for your unlock code.');
+  }
+}
+
+function tryPaywallUnlock() {
+  const input = document.getElementById('paywallUnlockInput');
+  if (input.value.trim().toUpperCase() === UNLOCK_CODE) {
+    state.isPremium = true;
+    saveState();
+    renderPremiumStatus();
+    closePaywall();
+    alert('Premium unlocked!');
+  } else {
+    alert('Invalid code. Email skye.ctes.app@gmail.com with your receipt for your unlock code.');
+  }
+}
+
+function renderPremiumStatus() {
+  if (state.isPremium) {
+    document.getElementById('premiumStatus').classList.add('hidden');
+    document.getElementById('premiumActive').classList.remove('hidden');
+  } else {
+    document.getElementById('premiumStatus').classList.remove('hidden');
+    document.getElementById('premiumActive').classList.add('hidden');
+  }
+}
+
+// ==================== SUB-SCREENS ====================
+function openSub(name) {
+  document.getElementById('sub-' + name).classList.add('open');
+  state.toolkitUses++;
+  saveState();
+  updateStats();
+}
+
+function closeSub(name) {
+  document.getElementById('sub-' + name).classList.remove('open');
+  // Reset breathing if closing
+  if (name === 'breathing' && state.breathInterval) {
+    clearInterval(state.breathInterval);
+    state.breathInterval = null;
+    document.getElementById('breathPhase').textContent = 'Ready';
+    document.getElementById('breathCount').textContent = '';
+    document.getElementById('breathBtn').textContent = 'Begin';
+    document.getElementById('breathCircle').className = 'breath-circle';
+  }
+}
+
+// ==================== BREATHING ====================
+function startBreathing() {
+  const btn = document.getElementById('breathBtn');
+  if (state.breathInterval) {
+    clearInterval(state.breathInterval);
+    state.breathInterval = null;
+    document.getElementById('breathPhase').textContent = 'Ready';
+    document.getElementById('breathCount').textContent = '';
+    btn.textContent = 'Begin';
+    document.getElementById('breathCircle').className = 'breath-circle';
+    return;
+  }
+
+  btn.textContent = 'Stop';
+  const phases = ['Inhale', 'Hold', 'Exhale', 'Hold'];
+  let phaseIdx = 0;
+  let count = 4;
+  const circle = document.getElementById('breathCircle');
+  const phaseEl = document.getElementById('breathPhase');
+  const countEl = document.getElementById('breathCount');
+
+  function tick() {
+    if (count <= 0) {
+      phaseIdx = (phaseIdx + 1) % 4;
+      count = 4;
+    }
+    phaseEl.textContent = phases[phaseIdx];
+    countEl.textContent = count;
+    circle.className = 'breath-circle ' + (phaseIdx === 0 ? 'inhale' : phaseIdx === 2 ? 'exhale' : '');
+    count--;
+  }
+
+  tick();
+  state.breathInterval = setInterval(tick, 1000);
+}
+
+// ==================== CHECKLIST ====================
+function renderChecklist() {
+  const container = document.getElementById('checklistItems');
+  let html = '';
+  CHECKLIST_ITEMS.forEach((item, i) => {
+    const checked = state.checklist[i] ? 'checked' : '';
+    html += '<div class="check-item"><div class="check-box '+checked+'" onclick="toggleCheck('+i+',this)">✓</div><span class="check-text">'+item+'</span></div>';
+  });
+  container.innerHTML = html;
+}
+
+function toggleCheck(idx, el) {
+  state.checklist[idx] = !state.checklist[idx];
+  el.classList.toggle('checked');
+  saveState();
+}
+
+// ==================== STORM FACTS ====================
+function renderFacts() {
+  const container = document.getElementById('factsContent');
+  let html = '';
+  FACTS.forEach(f => {
+    html += '<div class="fact-item"><div class="fact-item-icon">'+f.icon+'</div><div class="fact-item-text">'+f.text+'</div></div>';
+  });
+  container.innerHTML = html;
+}
+
+function setRandomFact() {
+  const f = FACTS[Math.floor(Math.random() * FACTS.length)];
+  document.getElementById('randomFact').textContent = f.text;
+}
+
+// ==================== JOURNAL ====================
+function selectMood(m) {
+  state.currentMood = m;
+  document.querySelectorAll('.mood-opt').forEach(el => {
+    el.classList.toggle('selected', parseInt(el.dataset.mood) === m);
+  });
+}
+
+function saveJournal() {
+  if (!state.currentMood) {
+    alert('Please select how you\'re feeling.');
+    return;
+  }
+
+  // Check free limit — first 3 storms are free, after that need premium
+  if (state.journalEntries.length >= 3 && !state.isPremium && state.stormCount > 3) {
+    document.getElementById('paywallModal').classList.add('open');
+    document.getElementById('paywallModal').style.display = 'flex';
+    return;
+  }
+
+  const entry = {
+    date: new Date().toISOString(),
+    mood: state.currentMood,
+    text: document.getElementById('journalText').value,
+  };
+  state.journalEntries.unshift(entry);
+  saveState();
+
+  // Reset
+  state.currentMood = null;
+  document.querySelectorAll('.mood-opt').forEach(el => el.classList.remove('selected'));
+  document.getElementById('journalText').value = '';
+
+  renderJournalHistory();
+  updateStats();
+  closeSub('journal');
+  alert('Journal entry saved. You\'re building resilience.');
+}
+
+function renderJournalHistory() {
+  const container = document.getElementById('journalHistory');
+  if (state.journalEntries.length === 0) {
+    container.innerHTML = '<p style="font-size:13px;color:var(--text-dim)">No entries yet.</p>';
+    return;
+  }
+  const moods = ['','😰','😟','😐','😌','😊'];
+  let html = '';
+  state.journalEntries.forEach(e => {
+    const d = new Date(e.date);
+    const dateStr = d.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
+    html += '<div class="journal-entry"><div class="journal-date">'+dateStr+'</div><div class="journal-mood">'+moods[e.mood]+' '+e.mood+'/5</div>';
+    if (e.text) html += '<div class="journal-note">"'+e.text+'"</div>';
+    html += '</div>';
+  });
+  container.innerHTML = html;
+}
+
+// ==================== PROFILE ====================
+function renderProfileTriggers() {
+  const container = document.getElementById('profileTriggers');
+  const labels = {
+    tornadoes:'🌪 Tornadoes', lightning:'⚡ Lightning', thunder:'🔊 Loud Thunder',
+    wind:'💨 Strong Wind', power:'🔌 Power Outages', flooding:'🌊 Flooding',
+    hail:'🧊 Hail', alone:'🏠 Being Alone'
+  };
+  let html = '';
+  state.triggers.forEach(t => {
+    html += '<span class="trigger-tag">'+(labels[t]||t)+'</span>';
+  });
+  if (state.triggers.length === 0) html = '<span style="font-size:13px;color:var(--text-dim)">None selected</span>';
+  container.innerHTML = html;
+}
+
+function setFont(size) {
+  document.body.className = size;
+  state.fontSize = size;
+  saveState();
+  document.querySelectorAll('.font-opt').forEach(el => {
+    el.classList.toggle('active', el.dataset.size === size);
+  });
+}
+
+function applyFont() {
+  document.body.className = state.fontSize;
+  document.querySelectorAll('.font-opt').forEach(el => {
+    el.classList.toggle('active', el.dataset.size === state.fontSize);
+  });
+}
+
+function updateStats() {
+  document.getElementById('statStorms').textContent = state.stormCount;
+  document.getElementById('statToolkit').textContent = state.toolkitUses;
+  if (state.journalEntries.length > 0) {
+    const avg = (state.journalEntries.reduce((s,e) => s + e.mood, 0) / state.journalEntries.length).toFixed(1);
+    document.getElementById('statMood').textContent = avg;
+  }
+}
+
+// ==================== SERVICE WORKER ====================
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+
+// ==================== INIT ====================
+init();
+updateStats();
 </script>
 
 </body>
