@@ -971,12 +971,16 @@ function getLocation() {
   }, {enableHighAccuracy: true, timeout: 10000});
 }
 
+let fetchWeatherInFlight = false;
 async function fetchWeather() {
+  if (fetchWeatherInFlight) return;
+  fetchWeatherInFlight = true;
   try {
     // Get point metadata
     const ptRes = await fetch('https://api.weather.gov/points/' + state.lat + ',' + state.lon, {
       headers: {'User-Agent': '(Skye Weather App, skye.ctes.app@gmail.com)'}
     });
+    if (!ptRes.ok) throw new Error('Points API error: ' + ptRes.status);
     const ptData = await ptRes.json();
     const props = ptData.properties;
 
@@ -987,6 +991,7 @@ async function fetchWeather() {
     const fcRes = await fetch(props.forecast, {
       headers: {'User-Agent': '(Skye Weather App, skye.ctes.app@gmail.com)'}
     });
+    if (!fcRes.ok) throw new Error('Forecast API error: ' + fcRes.status);
     const fcData = await fcRes.json();
     const current = fcData.properties.periods[0];
 
@@ -998,6 +1003,7 @@ async function fetchWeather() {
     const alRes = await fetch('https://api.weather.gov/alerts/active?point=' + state.lat + ',' + state.lon, {
       headers: {'User-Agent': '(Skye Weather App, skye.ctes.app@gmail.com)'}
     });
+    if (!alRes.ok) throw new Error('Alerts API error: ' + alRes.status);
     const alData = await alRes.json();
     state.alerts = alData.features || [];
     updateAlerts();
@@ -1010,6 +1016,8 @@ async function fetchWeather() {
   } catch(e) {
     console.error('Weather fetch error:', e);
     setTimeout(fetchWeather, 60000);
+  } finally {
+    fetchWeatherInFlight = false;
   }
 }
 
@@ -1047,7 +1055,7 @@ function getWeatherEmoji(desc, isDaytime) {
 function updateBriefing(current, periods) {
   const triggers = state.triggers;
   let text = '';
-  const desc = current.shortForecast.toLowerCase();
+  const desc = (current.shortForecast || '').toLowerCase();
   const temp = current.temperature;
 
   if (desc.includes('thunder') || desc.includes('storm')) {
@@ -1060,7 +1068,7 @@ function updateBriefing(current, periods) {
   } else if (desc.includes('clear') || desc.includes('sunny')) {
     text = 'Clear skies today — ' + temp + '°. No storms expected. A calm day ahead.';
   } else {
-    text = 'Currently ' + temp + '° with ' + current.shortForecast.toLowerCase() + '. No severe weather expected right now. Skye is watching so you don\'t have to.';
+    text = 'Currently ' + temp + '° with ' + (current.shortForecast || 'mixed conditions').toLowerCase() + '. No severe weather expected right now. Skye is watching so you don\'t have to.';
   }
 
   document.getElementById('briefingText').textContent = text;
@@ -1115,7 +1123,7 @@ function updateAlerts() {
     if (!tracked) {
       state.stormCount++;
       saveState();
-      localStorage.setItem('skye_tracked_' + alertId, '1');
+      try { localStorage.setItem('skye_tracked_' + alertId, '1'); } catch(e) {}
       // Show paywall after 3
       if (state.stormCount > 3 && !state.isPremium) {
         setTimeout(() => {
@@ -1409,6 +1417,14 @@ function setRandomFact() {
   document.getElementById('randomFact').textContent = f.text;
 }
 
+// ==================== HELPERS ====================
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;');
+}
+
 // ==================== JOURNAL ====================
 function selectMood(m) {
   state.currentMood = m;
@@ -1461,7 +1477,7 @@ function renderJournalHistory() {
     const d = new Date(e.date);
     const dateStr = d.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
     html += '<div class="journal-entry"><div class="journal-date">'+dateStr+'</div><div class="journal-mood">'+moods[e.mood]+' '+e.mood+'/5</div>';
-    if (e.text) html += '<div class="journal-note">"'+e.text+'"</div>';
+    if (e.text) html += '<div class="journal-note">"'+escapeHtml(e.text)+'"</div>';
     html += '</div>';
   });
   container.innerHTML = html;
@@ -1477,7 +1493,7 @@ function renderProfileTriggers() {
   };
   let html = '';
   state.triggers.forEach(t => {
-    html += '<span class="trigger-tag">'+(labels[t]||t)+'</span>';
+    html += '<span class="trigger-tag">'+escapeHtml(labels[t]||t)+'</span>';
   });
   if (state.triggers.length === 0) html = '<span style="font-size:13px;color:var(--text-dim)">None selected</span>';
   container.innerHTML = html;
