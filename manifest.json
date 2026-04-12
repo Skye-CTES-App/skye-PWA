@@ -1,0 +1,9 @@
+{
+  "name": "Skye — Calm Through Every Storm",
+  "short_name": "Skye",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1a2a3a",
+  "theme_color": "#1a2a3a",
+  "icons": []
+}
